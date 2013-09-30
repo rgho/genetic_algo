@@ -28,7 +28,7 @@ def theOffspringOf(pGene1,pGene2,pNumChildren):
 	geneLength = len(pGene1)
 	offspring = []
 	loopNum = 0
-	while (len(offspring) <= pNumChildren) and loopNum < 1000:
+	while (len(offspring) < pNumChildren) and loopNum < 1000:
 		loopNum +=1
 		#BY GOING FROM 1 to geneLength-1 we prevent 0 and geneLength from becoming crossover points.
 		crossoverPoint = random.randint(1,geneLength-1)
@@ -81,10 +81,7 @@ def mainLoop(pGenes):
 
 	return NULL
 
-
-
-pGene1 = ''.join(['a','b','c','d','e','f','g','h','i'])
-pGene2 = ''.join(['L','M','N','O','P','Q','R','S','T'])
+print theOffspringOf("TTTTTT", "XXXXXX",10)
 
 
 
