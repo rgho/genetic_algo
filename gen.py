@@ -7,7 +7,6 @@ def randomString(pLength):
 	# Uses this awesome compact method: http://stackoverflow.com/questions/2257441/python-random-string-generation-with-upper-case-letters-and-digits
 	return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(pLength))
 
-
 def solutionFound():
 	print("SOLUTION FOUND")
 	quit()
@@ -25,17 +24,24 @@ def mutationsOf(pGene):
 	return pGene
 
 def theOffspringOf(pGene1,pGene2,pNumChildren):
-	#MATES THE TWO GENES USING THE
+	#genes must be the same length for this to work correctly.
+	geneLength = len(pGene1)
+	offspring = []
+	loopNum = 0
+	while (len(offspring) <= pNumChildren) and loopNum < 1000:
+		loopNum +=1
+		#BY GOING FROM 1 to geneLength-1 we prevent 0 and geneLength from becoming crossover points.
+		crossoverPoint = random.randint(1,geneLength-1)
 
-	offsring = []
-	pNumChildren = -1
-	#while len(offsring) <= pNumChildren:
+		#generate children
+		child1 = pGene1[0:crossoverPoint] + pGene2[crossoverPoint:geneLength]
+		child2 =  pGene2[0:crossoverPoint] + pGene1[crossoverPoint:geneLength]
 
-	#choose pivot
-	pivot = random.randint(1,100)
+		# add the children to the list
+		offspring.append(child1)
+		offspring.append(child2)
 
-
-	return pGene
+	return offspring
 
 def someRandomGenes(generationSize):
 	return [randomString(len(theSolution())) for x in range(generationSize)]
@@ -76,29 +82,14 @@ def mainLoop(pGenes):
 	return NULL
 
 
-yay = ''.join(['a','b','c','d','e','f','g','h','i'])
-YAY = ''.join(['L','M','N','O','P','Q','R','S','T'])
 
-
-geneLength = len(yay)
-crossoverPoint = random.randint(1,geneLength-1) 
-#BY GOING FROM 1 to geneLength-1 we prevent 0 and geneLength from becoming crossover points.
-
-
-print leng
-print "FIRST CHILD: " + yay[0:leng] + YAY[leng:stLeng]
-print "SECOND CHILD: " + YAY[0:leng] + yay[leng:stLeng]
+pGene1 = ''.join(['a','b','c','d','e','f','g','h','i'])
+pGene2 = ''.join(['L','M','N','O','P','Q','R','S','T'])
 
 
 
 
-#"SECONDE CHUNK: " + 
 
-
-
-
-#yay[0:5]
-#len(someRandomGenes(20))
 
 
 
