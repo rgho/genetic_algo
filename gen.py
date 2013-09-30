@@ -1,7 +1,11 @@
 import string
 import random
 
-print random.choice(string.ascii_uppercase)
+
+def randomString(pLength):
+	#RETURN UPPERCASE, lowercase, Numb3rs.
+	# Uses this awesome compact method: http://stackoverflow.com/questions/2257441/python-random-string-generation-with-upper-case-letters-and-digits
+	return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(pLength))
 
 
 def solutionFound():
@@ -25,49 +29,16 @@ def theOffspringOf(pGene1,pGene2):
 	return pGene
 
 def someRandomGenes(generationSize):
-	geneLength = theSolution().len 
-
-	genes = []
-	for i in range(generationSize):
-		genes.append(randomChars(geneLength))
+	return randomString(len(theSolution())for x in range(generationSize)
 
 
-def randomChars(pLength):
-	#returns a random string of pLength
-	return 1
 
 
-def mainLoop(pGenes):
-	## CLEAR VARS
-	
-	if not pGenes == NULL:
-		##CONSTANTS
-		generationSize = 1000
-		## IF FIRST GEN THEN CREATE FIRST GENERATION
-		genes = someRandomGenes(generationSize)
-	else:
-		generationSize = pGenes.len 
 
-	##SCORE THE FIRST GENERATION
-	totalGenFitness = 0 
-	for x in range(generationSize):
-		if genes[x] == theSolution(): solutionFound()
-		geneFitness[x] = theFitnessOf(genes[x])
-		totalGenFitness += geneFitness[x]
-	avgGenFitness = totalGenFitness/generationSize
 
-	## DELETE / KILL GENES THAT DONT BEAT THE AVERAGE
-	for x in range(generationSize):
-		### WARNING THIS CODE WONT LOOP PROPERLY I THINK
-		if geneFitness[x] <= avgGenFitness: genes.pop(x)
 
-	## MATE THE ONES THAT SURVIVE 
-	genes = theOffspringOf[genes]
-	genes = mutationsOf[genes]
-	mainLoop(genes)
-
-	return NULL
-
+print randomString(20)
+print someRandomGenes(20)
 
 
 
