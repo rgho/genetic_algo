@@ -32,8 +32,9 @@ def theOffspringOf(pGene1,pGene2,pNumChildren):
 	#while len(offsring) <= pNumChildren:
 
 	#choose pivot
+	pivot = random.randint(1,100)
 
-	
+
 	return pGene
 
 def someRandomGenes(generationSize):
@@ -74,8 +75,29 @@ def mainLoop(pGenes):
 
 	return NULL
 
-yay = ''.join(['a','b','c','d','e'])
-print #yay[0:5]
+
+yay = ''.join(['a','b','c','d','e','f','g','h','i'])
+YAY = ''.join(['L','M','N','O','P','Q','R','S','T'])
+
+
+geneLength = len(yay)
+crossoverPoint = random.randint(1,geneLength-1) 
+#BY GOING FROM 1 to geneLength-1 we prevent 0 and geneLength from becoming crossover points.
+
+
+print leng
+print "FIRST CHILD: " + yay[0:leng] + YAY[leng:stLeng]
+print "SECOND CHILD: " + YAY[0:leng] + yay[leng:stLeng]
+
+
+
+
+#"SECONDE CHUNK: " + 
+
+
+
+
+#yay[0:5]
 #len(someRandomGenes(20))
 
 
