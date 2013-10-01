@@ -4,12 +4,29 @@ import random
 
 def theSolution():
 	#define solution
-	return "HACKER SCHOOL IS AWESOME"
+	return "CHESS"
+
+def levD(s1,s2):
+    if len(s1) > len(s2):
+        s1,s2 = s2,s1
+    distances = range(len(s1) + 1)
+    for index2,char2 in enumerate(s2):
+        newDistances = [index2+1]
+        for index1,char1 in enumerate(s1):
+            if char1 == char2:
+                newDistances.append(distances[index1])
+            else:
+                newDistances.append(1 + min((distances[index1],
+                                             distances[index1+1],
+                                             newDistances[-1])))
+        distances = newDistances
+    return distances[-1]
 
 def randomString(pLength):
 	#RETURN UPPERCASE, lowercase, Numb3rs.
 	# Uses this awesome compact method: http://stackoverflow.com/questions/2257441/python-random-string-generation-with-upper-case-letters-and-digits
-	return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(pLength))
+	## return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(pLength))
+	return ''.join(random.choice(string.ascii_uppercase) for x in range(pLength))
 
 def solutionFound():
 	print("SOLUTION FOUND")
@@ -19,11 +36,13 @@ def theFitnessOf(pGene):
 	#Returns fitness of a particular gene.
 	# the max fitness should be a percentage closeness based on the max length of string.
 	sol = theSolution()
-	maxFitness = len(sol)
+	#maxFitness = len(sol)
+	#print sol
+	#print maxFitness
 	#print maxFitness
 	#print levDist(pGene, sol)
 	#print float (maxFitness - levDist(pGene,sol))/(maxFitness)
-	return float (maxFitness - levDist(pGene,sol))/(maxFitness)
+	return levD(pGene,sol)
 
 def mutationsOf(pGene):
 	#mutates
@@ -52,95 +71,7 @@ def theOffspringOf(pGene1,pGene2,pNumChildren):
 def someRandomGenes(generationSize):
 	return [randomString(len(theSolution())) for x in range(generationSize)]
 
-def mainLoop(pGenes,pGenerationNum):
-	#quit
-	# if pGenerationNum >= 3: 
-	# 	print "gen greater than 3, quitting"
-	# 	quit()
-	# ## CLEAR VARS
 
-	##INIT
-	numchildren = 6
-
-	if pGenes == None:
-		##CONSTANTS
-		generationSize = 10000
-		pGenerationNum = 1
-		## IF FIRST GEN THEN CREATE FIRST GENERATION
-		genes = someRandomGenes(generationSize)
-	else:
-		if pGenerationNum == None: pGenerationNum = 1
-		generationSize = len(pGenes) 
-
-	## IF FIRST GEN THEN CREATE FIRST GENERATION
-	genes = someRandomGenes(generationSize)
-
-	## INTIALIZE A DICTIONARY TO STORE GENE FITNESS AND A VAR TO STORE
-	## TOTAL GENERATION FITNESS
-	geneFitness = dict()
-	generationFitness = 0
-
-	## CALCULATE FITNESS FOR EACH GENE, STORE IN DICT AND PRINT
-	for thisGene in genes:
-		geneFitness[thisGene] = theFitnessOf(thisGene)
-		generationFitness += geneFitness[thisGene]
-		print thisGene + "	" + str(geneFitness[thisGene])
-
-	## DETERMINE GENERATIONAL AVERAGE AND PRINT
-	avgGenFitness = generationFitness / generationSize
-	print "AVG GENERATION FITNESS: " + str(avgGenFitness)
-
-	## KILL GENES THAT DID NOT PERFORM ABOVE AVERAGE
-	## PRODUCE REPORT FOR DEATHS AND REPRODUCTION
-	print "WHAT HAPPENED... GENERATION # " + str(pGenerationNum) + " :" 
-	for thisGene in geneFitness.keys():
-		if geneFitness[thisGene] <= avgGenFitness:
-			print "DIED WITHOUT REPRODUCING: " + thisGene + "	" + str(geneFitness[thisGene])
-			del geneFitness[thisGene]
-
-	# ASSIGN SURVIVING GENES TO THE MAIN GENES LIST
-	genes = geneFitness.keys()
-	
-	## INIT EMPTY OFFSPRING LIST
-	offspring = []	
-	print 
-
-	## PRODUCE REPORT ON 
-	# for thisGene in genes:
-	# 	print "REPRODUCED: " + thisGene + "	" + str(geneFitness[thisGene])
-
-	## CHOOSE MATES (FIRST AND LAST ITEMS IN LIST) PRODUCE OFFSPRING AND REPORT
-	while len(genes) >= 2:
-		print 
-		# print "==FAMILY=="
-		# print "PARENT1: " + genes[0] + "	" + str(geneFitness[genes[0]])
-		# print "PARENT2: " + genes[-1] + "	" + str(geneFitness[genes[-1]])
-
-		newOffspring = theOffspringOf(genes[-1],genes[0],numchildren)
-		offspring.append(newOffspring)
-
-		# print "OFFSPRING: " + str(newOffspring)
-		# print "====="
-	#get rid of first and last itmes now that they have reporduced, they die. their children live on.
-		genes.pop(0)
-		genes.pop(-1)
-
-	# FORMAT THE OFFSPRING LIST
-	# flattens the weirdly nested list of offspring http://stackoverflow.com/questions/952914/making-a-flat-list-out-of-list-of-lists-in-python
-	offspring = [item for sublist in offspring for item in sublist]
-	print
-	print "NUM KIDS: " + str(len(offspring))
-	print "AVG PARENTS GENERATION FITNESS: " + str(avgGenFitness)
-
-	## SINCE THE OFFSPRING IS THE NEW GENERATION, THEY BECOME THE genes LIST:
-	pGenerationNum += 1 
-	genes = offspring
-
-	keepgoing = raw_input("Continue? ")
-	if not keepgoing == 'Y':
-		quit()
-	else:
-		mainLoop(genes,pGenerationNum)
 
 
 
@@ -150,6 +81,11 @@ def getxy(grid, x, y):
 def setxy(grid, x, y, val):
     grid[y][x] = val
     return grid
+
+
+ 
+
+
 
 def levDist(pString1, pString2):
 # initialize costs
@@ -193,6 +129,107 @@ def levDist(pString1, pString2):
 	# 		tDist[x][y] = min((tDist[x-1][y] + 1),(tDist[x][y-1] + 1),(tDist[x-1][y-1] + tCost))
 
 	# return tDist[x][y]
+
+
+
+#print theOffspringOf("TTTTTT","RRRRRR",6)
+
+def mainLoop(pGenes,pGenerationNum):
+	#quit
+	# if pGenerationNum >= 3: 
+	# 	print "gen greater than 3, quitting"
+	# 	quit()
+	# ## CLEAR VARS
+
+	##INIT
+	numchildren = 6
+
+	if pGenes == None:
+		##CONSTANTS
+		generationSize = 100
+		pGenerationNum = 1
+		## IF FIRST GEN THEN CREATE FIRST GENERATION
+		genes = someRandomGenes(generationSize)
+	else:
+		if pGenerationNum == None: pGenerationNum = 1
+		generationSize = len(pGenes) 
+
+	## IF FIRST GEN THEN CREATE FIRST GENERATION
+	genes = someRandomGenes(generationSize)
+
+	## INTIALIZE A DICTIONARY TO STORE GENE FITNESS AND A VAR TO STORE
+	## TOTAL GENERATION FITNESS
+	geneFitness = dict()
+	generationFitness = 0
+
+	## CALCULATE FITNESS FOR EACH GENE, STORE IN DICT AND PRINT
+	for thisGene in genes:
+		geneFitness[thisGene] = theFitnessOf(thisGene)
+		generationFitness += geneFitness[thisGene]
+		print thisGene + "	" + str(geneFitness[thisGene])
+
+	## DETERMINE GENERATIONAL AVERAGE AND PRINT
+	avgGenFitness = generationFitness / generationSize
+	print "AVG GENERATION FITNESS: " + str(avgGenFitness)
+
+	## KILL GENES THAT DID NOT PERFORM ABOVE AVERAGE
+	## PRODUCE REPORT FOR DEATHS AND REPRODUCTION
+	print "WHAT HAPPENED... GENERATION # " + str(pGenerationNum) + " :" 
+	for thisGene in geneFitness.keys():
+		if geneFitness[thisGene] < avgGenFitness:
+			print "DIED WITHOUT REPRODUCING: " + thisGene + "	" + str(geneFitness[thisGene])
+			del geneFitness[thisGene]
+
+	# ASSIGN SURVIVING GENES TO THE MAIN GENES LIST
+	genes = geneFitness.keys()
+	
+	## INIT EMPTY OFFSPRING LIST
+	offspring = []	
+	print 
+
+	## PRODUCE REPORT ON 
+	# for thisGene in genes:
+	# 	print "REPRODUCED: " + thisGene + "	" + str(geneFitness[thisGene])
+
+	## CHOOSE MATES (FIRST AND LAST ITEMS IN LIST) PRODUCE OFFSPRING AND REPORT
+	while len(genes) >= 2: 
+		# print "==FAMILY=="
+		# print "PARENT1: " + genes[0] + "	" + str(geneFitness[genes[0]])
+		# print "PARENT2: " + genes[-1] + "	" + str(geneFitness[genes[-1]])
+
+		newOffspring = theOffspringOf(genes[-1],genes[0],numchildren)
+		offspring.append(newOffspring)
+
+		# print "OFFSPRING: " + str(newOffspring)
+		# print "====="
+	#get rid of first and last itmes now that they have reporduced, they die. their children live on.
+		genes.pop(0)
+		genes.pop(-1)
+
+	# FORMAT THE OFFSPRING LIST
+	# flattens the weirdly nested list of offspring http://stackoverflow.com/questions/952914/making-a-flat-list-out-of-list-of-lists-in-python
+	offspring = [item for sublist in offspring for item in sublist]
+	print
+	print "GENERATION # " + str(pGenerationNum) + " :" 
+	print "NUM KIDS: " + str(len(offspring))
+	print "AVG PARENTS GENERATION FITNESS: " + str(avgGenFitness)
+
+	## SINCE THE OFFSPRING IS THE NEW GENERATION, THEY BECOME THE genes LIST:
+	pGenerationNum += 1 
+	genes = offspring
+
+	keepgoing = raw_input("Continue? ")
+	if not keepgoing == 'Y':
+		quit()
+	else:
+		mainLoop(genes,pGenerationNum)
+
+
+
+
+
+
+
 
 
 
