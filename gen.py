@@ -4,7 +4,7 @@ import random
 
 def theSolution():
 	#define solution
-	return "CHESS"
+	return "HACKER SCHOOL IS AWESOME"
 
 def levD(s1,s2):
     if len(s1) > len(s2):
@@ -145,17 +145,18 @@ def mainLoop(pGenes,pGenerationNum):
 	numchildren = 6
 
 	if pGenes == None:
+		print "A NEW GENERATION WAS STARTED"
 		##CONSTANTS
-		generationSize = 100
+		generationSize = 10000
 		pGenerationNum = 1
 		## IF FIRST GEN THEN CREATE FIRST GENERATION
 		genes = someRandomGenes(generationSize)
 	else:
 		if pGenerationNum == None: pGenerationNum = 1
+		genes = pGenes
 		generationSize = len(pGenes) 
 
-	## IF FIRST GEN THEN CREATE FIRST GENERATION
-	genes = someRandomGenes(generationSize)
+	
 
 	## INTIALIZE A DICTIONARY TO STORE GENE FITNESS AND A VAR TO STORE
 	## TOTAL GENERATION FITNESS
@@ -169,18 +170,21 @@ def mainLoop(pGenes,pGenerationNum):
 		print thisGene + "	" + str(geneFitness[thisGene])
 
 	## DETERMINE GENERATIONAL AVERAGE AND PRINT
-	avgGenFitness = generationFitness / generationSize
+	avgGenFitness = float(generationFitness) / generationSize
 	print "AVG GENERATION FITNESS: " + str(avgGenFitness)
 
 	## KILL GENES THAT DID NOT PERFORM ABOVE AVERAGE
 	## PRODUCE REPORT FOR DEATHS AND REPRODUCTION
+	test1 = len(geneFitness.keys())
 	print "WHAT HAPPENED... GENERATION # " + str(pGenerationNum) + " :" 
 	for thisGene in geneFitness.keys():
-		if geneFitness[thisGene] < avgGenFitness:
+		if geneFitness[thisGene] >= avgGenFitness:
 			print "DIED WITHOUT REPRODUCING: " + thisGene + "	" + str(geneFitness[thisGene])
 			del geneFitness[thisGene]
 
 	# ASSIGN SURVIVING GENES TO THE MAIN GENES LIST
+	test2 = len(geneFitness.keys())
+
 	genes = geneFitness.keys()
 	
 	## INIT EMPTY OFFSPRING LIST
@@ -210,19 +214,20 @@ def mainLoop(pGenes,pGenerationNum):
 	# flattens the weirdly nested list of offspring http://stackoverflow.com/questions/952914/making-a-flat-list-out-of-list-of-lists-in-python
 	offspring = [item for sublist in offspring for item in sublist]
 	print
+	print "NUM KILLED: " + str(test1-test2)
 	print "GENERATION # " + str(pGenerationNum) + " :" 
 	print "NUM KIDS: " + str(len(offspring))
 	print "AVG PARENTS GENERATION FITNESS: " + str(avgGenFitness)
 
 	## SINCE THE OFFSPRING IS THE NEW GENERATION, THEY BECOME THE genes LIST:
 	pGenerationNum += 1 
-	genes = offspring
+	#genes = offspring
 
 	keepgoing = raw_input("Continue? ")
-	if not keepgoing == 'Y':
+	if not keepgoing == 'y':
 		quit()
 	else:
-		mainLoop(genes,pGenerationNum)
+		mainLoop(offspring,pGenerationNum)
 
 
 
