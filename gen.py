@@ -4,7 +4,7 @@ import random
 
 def theSolution():
 	#define solution
-	return "HACKER SCHOOL IS AWESOME"
+	return "HACKER SCHOOL"
 
 def levD(s1,s2):
     if len(s1) > len(s2):
@@ -26,7 +26,7 @@ def randomString(pLength):
 	#RETURN UPPERCASE, lowercase, Numb3rs.
 	# Uses this awesome compact method: http://stackoverflow.com/questions/2257441/python-random-string-generation-with-upper-case-letters-and-digits
 	## return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(pLength))
-	return ''.join(random.choice(string.ascii_uppercase) for x in range(pLength))
+	return ''.join(random.choice(string.ascii_uppercase + " ") for x in range(pLength))
 
 def solutionFound():
 	print("SOLUTION FOUND")
@@ -36,6 +36,7 @@ def theFitnessOf(pGene):
 	#Returns fitness of a particular gene.
 	# the max fitness should be a percentage closeness based on the max length of string.
 	sol = theSolution()
+	if pGene == sol: solutionFound()
 	#maxFitness = len(sol)
 	#print sol
 	#print maxFitness
@@ -147,7 +148,7 @@ def mainLoop(pGenes,pGenerationNum):
 	if pGenes == None:
 		print "A NEW GENERATION WAS STARTED"
 		##CONSTANTS
-		generationSize = 10000
+		generationSize = 500
 		pGenerationNum = 1
 		## IF FIRST GEN THEN CREATE FIRST GENERATION
 		genes = someRandomGenes(generationSize)
