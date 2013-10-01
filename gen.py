@@ -20,9 +20,9 @@ def theFitnessOf(pGene):
 	# the max fitness should be a percentage closeness based on the max length of string.
 	sol = theSolution()
 	maxFitness = len(sol)
-	print maxFitness
-	print levDist(pGene, sol)
-	print float (maxFitness - levDist(pGene,sol))/(maxFitness)
+	#print maxFitness
+	#print levDist(pGene, sol)
+	#print float (maxFitness - levDist(pGene,sol))/(maxFitness)
 	return float (maxFitness - levDist(pGene,sol))/(maxFitness)
 
 def mutationsOf(pGene):
@@ -52,41 +52,93 @@ def theOffspringOf(pGene1,pGene2,pNumChildren):
 def someRandomGenes(generationSize):
 	return [randomString(len(theSolution())) for x in range(generationSize)]
 
-def mainLoop(pGenes):
-	## CLEAR VARS
+def mainLoop(pGenes,pGenerationNum):
+	#quit
+	# if pGenerationNum >= 3: 
+	# 	print "gen greater than 3, quitting"
+	# 	quit()
+	# ## CLEAR VARS
 
 	##INIT
 	numchildren = 6
 
-	
-	if not pGenes == NULL:
+	if pGenes == None:
 		##CONSTANTS
-		generationSize = 1000
+		generationSize = 10000
+		pGenerationNum = 1
 		## IF FIRST GEN THEN CREATE FIRST GENERATION
 		genes = someRandomGenes(generationSize)
 	else:
-		generationSize = pGenes.len 
+		if pGenerationNum == None: pGenerationNum = 1
+		generationSize = len(pGenes) 
 
-	##SCORE THE FIRST GENERATION
-	totalGenFitness = 0 
-	for x in range(generationSize):
-		if genes[x] == theSolution(): solutionFound()
-		geneFitness[x] = theFitnessOf(genes[x])
-		totalGenFitness += geneFitness[x]
-	avgGenFitness = totalGenFitness/generationSize
+	## IF FIRST GEN THEN CREATE FIRST GENERATION
+	genes = someRandomGenes(generationSize)
 
-	## DELETE / KILL GENES THAT DONT BEAT THE AVERAGE
-	for x in range(generationSize):
-		### WARNING THIS CODE WONT LOOP PROPERLY I THINK
-		if geneFitness[x] <= avgGenFitness: genes.pop(x)
+	## INTIALIZE A DICTIONARY TO STORE GENE FITNESS AND A VAR TO STORE
+	## TOTAL GENERATION FITNESS
+	geneFitness = dict()
+	generationFitness = 0
 
-	## MATE THE ONES THAT SURVIVE 
-	genes = theOffspringOf[genes]
-	genes = mutationsOf[genes]
-	mainLoop(genes)
+	## CALCULATE FITNESS FOR EACH GENE, STORE IN DICT AND PRINT
+	for thisGene in genes:
+		geneFitness[thisGene] = theFitnessOf(thisGene)
+		generationFitness += geneFitness[thisGene]
+		print thisGene + "	" + str(geneFitness[thisGene])
 
-	return NULL
+	## DETERMINE GENERATIONAL AVERAGE AND PRINT
+	avgGenFitness = generationFitness / generationSize
+	print "AVG GENERATION FITNESS: " + str(avgGenFitness)
 
+	## KILL GENES THAT DID NOT PERFORM ABOVE AVERAGE
+	## PRODUCE REPORT FOR DEATHS AND REPRODUCTION
+	print "WHAT HAPPENED... GENERATION # " + str(pGenerationNum) + " :" 
+	for thisGene in geneFitness.keys():
+		if geneFitness[thisGene] <= avgGenFitness:
+			print "DIED WITHOUT REPRODUCING: " + thisGene + "	" + str(geneFitness[thisGene])
+			del geneFitness[thisGene]
+
+	# ASSIGN SURVIVING GENES TO THE MAIN GENES LIST
+	genes = geneFitness.keys()
+	
+	## INIT EMPTY OFFSPRING LIST
+	offspring = []	
+	print 
+
+	## PRODUCE REPORT ON 
+	# for thisGene in genes:
+	# 	print "REPRODUCED: " + thisGene + "	" + str(geneFitness[thisGene])
+
+	## CHOOSE MATES (FIRST AND LAST ITEMS IN LIST) PRODUCE OFFSPRING AND REPORT
+	while len(genes) >= 2:
+		print 
+		print "==FAMILY=="
+		print "PARENT1: " + genes[0] + "	" + str(geneFitness[genes[0]])
+		print "PARENT2: " + genes[-1] + "	" + str(geneFitness[genes[-1]])
+
+		newOffspring = theOffspringOf(genes[-1],genes[0],numchildren)
+		offspring.append(newOffspring)
+
+		print "OFFSPRING: " + str(newOffspring)
+		print "====="
+	#get rid of first and last itmes now that they have reporduced, they die. their children live on.
+		genes.pop(0)
+		genes.pop(-1)
+
+	# FORMAT THE OFFSPRING LIST
+	# flattens the weirdly nested list of offspring http://stackoverflow.com/questions/952914/making-a-flat-list-out-of-list-of-lists-in-python
+	offspring = [item for sublist in offspring for item in sublist]
+	print "NUM KIDS: " + str(len(offspring))
+
+	## SINCE THE OFFSPRING IS THE NEW GENERATION, THEY BECOME THE genes LIST:
+	pGenerationNum += 1 
+	genes = offspring
+
+	keepgoing = raw_input("Continue? ")
+	if not keepgoing == 'Y':
+		quit()
+	else:
+		mainLoop(genes,pGenerationNum)
 
 
 
@@ -141,48 +193,20 @@ def levDist(pString1, pString2):
 	# return tDist[x][y]
 
 
+
+
+
+mainLoop(None,None)
+
+
+
 # print levDist("rosettacode", "raisethysword")
 # print theFitnessOf("HACKER SCHOOL IS AWESOME")
 # print theOffspringOf("TTTTTT", "XXXXXX",10)
 
 
-generationSize = 10
-		## IF FIRST GEN THEN CREATE FIRST GENERATION
-genes = someRandomGenes(generationSize)
-
-geneFitness = dict()
-generationFitness = 0
-
-for thisGene in genes:
-	geneFitness[thisGene] = theFitnessOf(thisGene)
-	generationFitness += geneFitness[thisGene]
-	print thisGene + "	" + str(geneFitness[thisGene])
-
-avgGenFitness = generationFitness / generationSize
-print "AVG GENERATION FITNESS: " + str(avgGenFitness)
-
-print "WHAT HAPPENED THIS GENERATION: "
-for thisGene in geneFitness.keys():
-	if geneFitness[thisGene] <= avgGenFitness:
-		print "DIED WITHOUT REPRODUCING: " + thisGene + "	" + str(geneFitness[thisGene])
-		del geneFitness[thisGene]
-
-# ASSIGN SURVIVING GENES
-genes = geneFitness.keys()
-offspring = []
-print 
-
-if len(genes) > 2:
-	offspring.append(theOffspringOf(genes[-1],genes[1]))
-	#get rid of first and last itmes
-	genes.pop(0)
-	genes.pop(-1)
 
 
-
-for thisGene in genes:
-	
-	print "REPRODUCED: " + thisGene + "	" + str(geneFitness[thisGene])
 
 
 
