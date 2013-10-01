@@ -112,15 +112,15 @@ def mainLoop(pGenes,pGenerationNum):
 	## CHOOSE MATES (FIRST AND LAST ITEMS IN LIST) PRODUCE OFFSPRING AND REPORT
 	while len(genes) >= 2:
 		print 
-		print "==FAMILY=="
-		print "PARENT1: " + genes[0] + "	" + str(geneFitness[genes[0]])
-		print "PARENT2: " + genes[-1] + "	" + str(geneFitness[genes[-1]])
+		# print "==FAMILY=="
+		# print "PARENT1: " + genes[0] + "	" + str(geneFitness[genes[0]])
+		# print "PARENT2: " + genes[-1] + "	" + str(geneFitness[genes[-1]])
 
 		newOffspring = theOffspringOf(genes[-1],genes[0],numchildren)
 		offspring.append(newOffspring)
 
-		print "OFFSPRING: " + str(newOffspring)
-		print "====="
+		# print "OFFSPRING: " + str(newOffspring)
+		# print "====="
 	#get rid of first and last itmes now that they have reporduced, they die. their children live on.
 		genes.pop(0)
 		genes.pop(-1)
@@ -128,7 +128,9 @@ def mainLoop(pGenes,pGenerationNum):
 	# FORMAT THE OFFSPRING LIST
 	# flattens the weirdly nested list of offspring http://stackoverflow.com/questions/952914/making-a-flat-list-out-of-list-of-lists-in-python
 	offspring = [item for sublist in offspring for item in sublist]
+	print
 	print "NUM KIDS: " + str(len(offspring))
+	print "AVG PARENTS GENERATION FITNESS: " + str(avgGenFitness)
 
 	## SINCE THE OFFSPRING IS THE NEW GENERATION, THEY BECOME THE genes LIST:
 	pGenerationNum += 1 
