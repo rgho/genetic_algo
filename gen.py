@@ -1,9 +1,8 @@
 import string
 import random
-# import numpy
 
 def theSolution():
-	#define solution
+	#Define soluti
 	return "HACKER SCHOOL"
 
 def levD(s1,s2):
@@ -25,7 +24,7 @@ def levD(s1,s2):
 def randomString(pLength):
 	#RETURN UPPERCASE, lowercase, Numb3rs.
 	# Uses this awesome compact method: http://stackoverflow.com/questions/2257441/python-random-string-generation-with-upper-case-letters-and-digits
-	## return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(pLength))
+	# return ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(pLength))
 	return ''.join(random.choice(string.ascii_uppercase + " ") for x in range(pLength))
 
 def solutionFound():
@@ -37,19 +36,15 @@ def theFitnessOf(pGene):
 	# the max fitness should be a percentage closeness based on the max length of string.
 	sol = theSolution()
 	if pGene == sol: solutionFound()
-	#maxFitness = len(sol)
-	#print sol
-	#print maxFitness
-	#print maxFitness
-	#print levDist(pGene, sol)
-	#print float (maxFitness - levDist(pGene,sol))/(maxFitness)
-	return levD(pGene,sol)
+	maxFitness = len(sol)
+	return 100 * ((maxFitness - levD(pGene,sol)) / float(maxFitness))
 
 def mutationsOf(pGene):
-	#mutates
+	# MUTATE A SMALL PERCENTAGE
 	return pGene
 
 def theOffspringOf(pGene1,pGene2,pNumChildren):
+	# NOTE ADD OTHER MATING METHODS
 	#genes must be the same length for this to work correctly.
 	geneLength = len(pGene1)
 	offspring = []
@@ -72,10 +67,6 @@ def theOffspringOf(pGene1,pGene2,pNumChildren):
 def someRandomGenes(generationSize):
 	return [randomString(len(theSolution())) for x in range(generationSize)]
 
-
-
-
-
 def getxy(grid, x, y):
     return grid[y][x]
 
@@ -83,11 +74,7 @@ def setxy(grid, x, y, val):
     grid[y][x] = val
     return grid
 
-
- 
-
-
-
+# CURRENTLY UNUSED
 def levDist(pString1, pString2):
 # initialize costs
 	tLen1 = len(pString1)
@@ -97,7 +84,6 @@ def levDist(pString1, pString2):
 	tDelCost = 1
 	tAddCost = 1
 
-	
 	# the range should be the (len of the string + 1) 
 	tDist = [[0 for i in range(tLen1+1)] for j in range(tLen2+1)]
 
@@ -117,38 +103,15 @@ def levDist(pString1, pString2):
 
 	return getxy(tDist,x,y)
 
-	# for x in range(len(pString1)+1):
-	# 	tDist[x][0] = x
-
-	# 	for y in range(len(pString2)+1):
-	# 		tDist[0][y] = y
-
-	# 		if pString1[x] == pString2[y]: 
-	# 				tCost = 0 
-	# 		else: 
-	# 				tCost = tSubCost
-	# 		tDist[x][y] = min((tDist[x-1][y] + 1),(tDist[x][y-1] + 1),(tDist[x-1][y-1] + tCost))
-
-	# return tDist[x][y]
-
-
-
-#print theOffspringOf("TTTTTT","RRRRRR",6)
 
 def mainLoop(pGenes,pGenerationNum):
-	#quit
-	# if pGenerationNum >= 3: 
-	# 	print "gen greater than 3, quitting"
-	# 	quit()
-	# ## CLEAR VARS
-
 	##INIT
 	numchildren = 6
 
 	if pGenes == None:
 		print "A NEW GENERATION WAS STARTED"
 		##CONSTANTS
-		generationSize = 500
+		generationSize = 800
 		pGenerationNum = 1
 		## IF FIRST GEN THEN CREATE FIRST GENERATION
 		genes = someRandomGenes(generationSize)
@@ -156,8 +119,6 @@ def mainLoop(pGenes,pGenerationNum):
 		if pGenerationNum == None: pGenerationNum = 1
 		genes = pGenes
 		generationSize = len(pGenes) 
-
-	
 
 	## INTIALIZE A DICTIONARY TO STORE GENE FITNESS AND A VAR TO STORE
 	## TOTAL GENERATION FITNESS
@@ -232,35 +193,4 @@ def mainLoop(pGenes,pGenerationNum):
 
 
 
-
-
-
-
-
-
-
-
-
 mainLoop(None,None)
-
-
-
-# print levDist("rosettacode", "raisethysword")
-# print theFitnessOf("HACKER SCHOOL IS AWESOME")
-# print theOffspringOf("TTTTTT", "XXXXXX",10)
-
-
-
-
-
-
-
-
-	# ##SCORE THE FIRST GENERATION
-	# totalGenFitness = 0 
-	# for x in range(generationSize):
-	# 	if genes[x] == theSolution(): solutionFound()
-	# 	geneFitness[x] = theFitnessOf(genes[x])
-	# 	totalGenFitness += geneFitness[x]
-	# avgGenFitness = totalGenFitness/generationSize
-
