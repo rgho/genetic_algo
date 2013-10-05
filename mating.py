@@ -47,7 +47,7 @@ def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):
 
 	# DETECT CASE WHERE pNumCrossovers is specified higher than valid
 	if pNumCrossovers > geneLength: 
-		print "ERROR: NUMBER OF CROSSOVERS MAY NOT EXCEED GENE LENTGH"
+		print "ERROR: NUMBER OF CROSSOVERS MAY NOT EXCEED GENE LENGTH"
 
 	# WE BEGIN GENERATING OFFSRPING TILL WE HAVE ENOUGH!
 	loopCount = 0
@@ -59,17 +59,25 @@ def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):
 		# clone on parents. the random.sample returns (pNumCrossover) number of unique
 		# and random crossover points from the valid list, in the form of a list.
 		randomCrossoverPoints  = random.sample(range(1,geneLength), pNumCrossovers)
-		print randomCrossoverPoints
+		# print randomCrossoverPoints # GREAT FOR DEBUGGING
 
+		# because of the destructive nature of the following of how we build multiple
+		#crossove genes we clone the parents and make the children out of the clones.
+		parentClone1 = pGene1
+		parentClone2 = pGene2
+		
+		# now we loop for each crossover, applying it to the clones. the end of this
+		# process is that the clones now are the children, because they have had the
+		#crossovers applied to them iteratively
 		for thisCrossover in randomCrossoverPoints:
-			tempGene1 = pGene1 #because of the destructive nature of the following: 
+			tempGene1 = parentClone1 #because of the destructive nature of following operations. 
 			# compute offsrping
-			pGene1 = pGene1[0:thisCrossover] + pGene2[thisCrossover:geneLength]
-			pGene2 = pGene2[0:thisCrossover] + tempGene1[thisCrossover:geneLength]
+			parentClone1 = parentClone1[0:thisCrossover] + parentClone2[thisCrossover:geneLength]
+			parentClone2 = parentClone2[0:thisCrossover] + tempGene1[thisCrossover:geneLength]
 
 		# ADD OFFSRPING TO LIST
-		offspring.append(pGene1)
-		offspring.append(pGene2)
+		offspring.append(parentClone1)
+		offspring.append(parentClone2)
 
 	# FUTURE DEV. IF YOU WANT TO REMOVE DUPES FROM OFFSPRING (THINK THRU IMPLICATIONS)
 	# A SET IN PYTHON HAS NO DUPLICATES. SO WE CONVERT OUT LIST TO A SET AND THEN
@@ -95,6 +103,6 @@ def listPrint(pList):
 		print item
 
 
-listPrint(nPointCrossover("XXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOO", 6, 2))
+listPrint(nPointCrossover("XXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOO", 12, 10))
 
 
