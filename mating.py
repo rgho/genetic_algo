@@ -22,22 +22,28 @@ import random
 
 	# 	return offspring
 
+def twoPointCrossover(pGene1,pGene2,pNumChildren):
+	return nPointCrossover(pGene1,pGene2, pNumChildren, 1)
 
+def onePointCrossover(pGene1,pGene2,pNumChildren):
+	return nPointCrossover(pGene1,pGene2, pNumChildren, 2)
 
-def onePointCrossover(pGene1,pGene2):
-	return
-
-def twoPointCrossover(pGene1,pGene2):
+def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):
 	# this should force support of different string lengths
+	
+
+	# GRAB STR LENGTHS AND DETERMINE GENELENGTH ACCORDINGLY
 	len1 = len(pGene1)
 	len2 = len(pGene2)
-
-	if not len1 == len2:
-		if len1 > len2: remnant = pGene1[len2:len1]
-		else: remnant = pGene2[len1:len2]
-
-	# how to handle remnant: ignore, trim to average of lens, trim to random size
 	geneLength = min(len1,len2)
+	
+	# ASSIGN A VALUE TO THE REMNANT, THE REMAINING CHARS OF THE LONGER GENE
+	if len1 == len2: remnant = ""
+	elif len1 >	 len2: remnant = pGene1[len2:len1]
+	else: remnant = pGene2[len1:len2]
+
+	# DECIDE how to handle remnant: ignore, trim to average of lens, trim to random size
+	
 
 	# the random function generates random ints within and including the two params
 	numCrossovers = 4
