@@ -1,33 +1,6 @@
 import string
 import random
 
-	# def theOffspringOf(pGene1,pGene2,pNumChildren):
-	# # NOTE ADD OTHER MATING METHODS
-	# #genes must be the same length for this to work correctly.
-	# geneLength = len(pGene1) if (len(pGene1) < len(pGene2)) else len(pGene2)
-	# offspring = []
-	# loopNum = 0
-	# while (len(offspring) < pNumChildren) and loopNum < 1000:
-	# 	loopNum +=1
-	# 	#BY GOING FROM 1 to geneLength-1 we prevent 0 and geneLength from becoming crossover points.
-	# 	crossoverPoint = random.randint(1,geneLength-1)
-
-	# 	#generate children
-	# 	child1 = pGene1[0:crossoverPoint] + pGene2[crossoverPoint:geneLength]
-	# 	child2 =  pGene2[0:crossoverPoint] + pGene1[crossoverPoint:geneLength]
-
-	# 	# add the children to the list
-	# 	offspring.append(child1)
-	# 	offspring.append(child2)
-
-	# 	return offspring
-
-def twoPointCrossover(pGene1,pGene2,pNumChildren):
-	return nPointCrossover(pGene1,pGene2, pNumChildren, 1)
-
-def onePointCrossover(pGene1,pGene2,pNumChildren):
-	return nPointCrossover(pGene1,pGene2, pNumChildren, 2)
-
 def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):
 	# INITIALIZE OFFSPRING LIST
 	offspring = []
@@ -89,20 +62,55 @@ def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):
 	# more genes than we want. so we return the first pNumChildren items. 
 	return offspring[0:pNumChildren]
 
-def cutAndSplice(pGene1,pGene2):
-	return
+def twoPointCrossover(pGene1,pGene2,pNumChildren):
+	return nPointCrossover(pGene1,pGene2, pNumChildren, 1)
+
+def onePointCrossover(pGene1,pGene2,pNumChildren):
+	return nPointCrossover(pGene1,pGene2, pNumChildren, 2)
+
+def cutAndSplice(pGene1,pGene2, pNumChildren):
+	# INITIALIZE OFFSPRING LIST
+	offspring = []
+
+	# GRAB STR LENGTHS AND DETERMINE GENELENGTH ACCORDINGLY
+	len1 = len(pGene1)
+	len2 = len(pGene2)
+	
+	# WE BEGIN GENERATING OFFSRPING TILL WE HAVE ENOUGH!
+	loopCount = 0
+	while (len(offspring) < pNumChildren) and loopCount < 1000:
+		loopCount+=1 #safeguard in case something goes wrong and loops infinitely
+		
+		# RANDOM CHOOSE CROSSOVERS
+		crossover1 = random.randint(1,len1-1)
+		crossover2 = random.randint(1,len2-1)
+		#print str(crossover1) + " " + str(crossover2)
+		#CREATE KIDS
+		child1 = pGene1[0:crossover1] + pGene2[crossover2:len2]
+		child2 = pGene2[0:crossover2] + pGene1[crossover1:len1]
+
+		# ADD OFFSRPING TO LIST
+		offspring.append(child1)
+		offspring.append(child2)
+
+	# because genes are added 2 at a time sometimes the offspring list will have
+	# more genes than we want. so we return the first pNumChildren items. 
+	return offspring[0:pNumChildren]
 
 def uniformCrossover():
+	#future dev
 	return
 
 def halfUniformCrossover():
+	#future dev
 	return
 
 def listPrint(pList):
 	for item in pList:
 		print item
 
-
-listPrint(nPointCrossover("XXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOO", 12, 10))
+#TESTING
+#listPrint(cutAndSplice("----------", "OOOOOOOOOO",12))
+# listPrint(nPointCrossover("XXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOO", 12, 10))
 
 
