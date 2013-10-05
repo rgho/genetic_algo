@@ -97,9 +97,31 @@ def cutAndSplice(pGene1,pGene2, pNumChildren):
 	# more genes than we want. so we return the first pNumChildren items. 
 	return offspring[0:pNumChildren]
 
-def uniformCrossover():
-	#future dev
-	return
+def uniformCrossover(pGene1,pGene2, pNumChildren):
+	# since strings are immutable in python and we want to later assign specific chars
+	# we convert the strings to lists first.
+	pGene1 = list(pGene1)
+	pGene2 = list(pGene2)
+	
+	offspring = []
+	
+	# WE BEGIN GENERATING OFFSRPING TILL WE HAVE ENOUGH!
+	loopCount = 0
+	while (len(offspring) < pNumChildren) and loopCount < 1000:
+		loopCount+=1 #safeguard in case something goes wrong and loops infinitely
+
+		for charNum in range(len(pGene1)):
+			if (not (pGene1[charNum] == pGene2[charNum])) and (round(random.uniform(0,1)) == 1):
+				# SWAP CHARS
+				tempChar = pGene1[charNum]
+				pGene1[charNum] = pGene2[charNum]
+				pGene2[charNum] = tempChar
+
+		offspring.append("".join(pGene1))
+		offspring.append("".join(pGene2))
+
+	return offspring[0:pNumChildren]
+
 
 def halfUniformCrossover():
 	#future dev
@@ -111,6 +133,5 @@ def listPrint(pList):
 
 #TESTING
 #listPrint(cutAndSplice("----------", "OOOOOOOOOO",12))
-# listPrint(nPointCrossover("XXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOO", 12, 10))
-
-
+#listPrint(nPointCrossover("XXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOO", 6, 4))
+#listPrint(uniformCrossover("111133331111", "111144441111", 12))
