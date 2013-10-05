@@ -29,8 +29,8 @@ def onePointCrossover(pGene1,pGene2,pNumChildren):
 	return nPointCrossover(pGene1,pGene2, pNumChildren, 2)
 
 def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):
-	# this should force support of different string lengths
-	
+	# INITIALIZE OFFSPRING LIST
+	offspring = []
 
 	# GRAB STR LENGTHS AND DETERMINE GENELENGTH ACCORDINGLY
 	len1 = len(pGene1)
@@ -43,30 +43,43 @@ def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):
 	else: remnant = pGene2[len1:len2]
 
 	# DECIDE how to handle remnant: ignore, trim to average of lens, trim to random size
-	
+	remnant = remnant
 
-	# the random function generates random ints within and including the two params
-	numCrossovers = 4
-	if numCrossovers > geneLength: print "BAD THINGS HAPPEN HERE"
+	# DETECT CASE WHERE pNumCrossovers is specified higher than valid
+	if pNumCrossovers > geneLength: 
+		print "ERROR: NUMBER OF CROSSOVERS MAY NOT EXCEED GENE LENTGH"
 
-	print range(1,geneLength)
-	crossList  = random.sample(range(1,geneLength), numCrossovers)
-	print crossList
+	# WE BEGIN GENERATING OFFSRPING TILL WE HAVE ENOUGH!
+	loopCount = 0
+	while (len(offspring) < pNumChildren) and loopCount < 1000:
+		loopCount+=1 #safeguard in case something goes wrong and loops infinitely
 
-	for thisCrossover in crossList:
-		tempGene1 = pGene1
-		pGene1 = pGene1[0:thisCrossover] + pGene2[thisCrossover:geneLength]
-		pGene2 = pGene2[0:thisCrossover] + tempGene1[thisCrossover:geneLength]
+		# range(1,geneLength) generates a list of valid crossover points for 
+		# the gene (avoiding end charectars 0 and geneLength, which would result in
+		# clone on parents. the random.sample returns (pNumCrossover) number of unique
+		# and random crossover points from the valid list, in the form of a list.
+		randomCrossoverPoints  = random.sample(range(1,geneLength), pNumCrossovers)
+		print randomCrossoverPoints
 
-	print pGene1
-	print pGene2
+		for thisCrossover in randomCrossoverPoints:
+			tempGene1 = pGene1 #because of the destructive nature of the following: 
+			# compute offsrping
+			pGene1 = pGene1[0:thisCrossover] + pGene2[thisCrossover:geneLength]
+			pGene2 = pGene2[0:thisCrossover] + tempGene1[thisCrossover:geneLength]
 
-	# for thisCrossover in crossList:
-	# 	print thisCrossover
-	# 	print pGene1[0:thisCrossover] + pGene2[thisCrossover:geneLength] #+ remnant
-	# 	print pGene2[0:thisCrossover] + pGene1[thisCrossover:geneLength] #+ remnant
+		# ADD OFFSRPING TO LIST
+		offspring.append(pGene1)
+		offspring.append(pGene2)
 
-	return 
+	# FUTURE DEV. IF YOU WANT TO REMOVE DUPES FROM OFFSPRING (THINK THRU IMPLICATIONS)
+	# A SET IN PYTHON HAS NO DUPLICATES. SO WE CONVERT OUT LIST TO A SET AND THEN
+	# BACK TO A LIST TO PURGE DUPES. NOTE THAT THE ORDER OF THE LIST IS DESTROYED :(
+	# offspring = list(set(offspring)). Also note that we would have to add more
+	# offsrping to get to the right number of pNumChildren
+
+	# because genes are added 2 at a time sometimes the offspring list will have
+	# more genes than we want. so we return the first pNumChildren items. 
+	return offspring[0:pNumChildren]
 
 def cutAndSplice(pGene1,pGene2):
 	return
@@ -77,6 +90,11 @@ def uniformCrossover():
 def halfUniformCrossover():
 	return
 
+def listPrint(pList):
+	for item in pList:
+		print item
 
-twoPointCrossover("XXXXXXXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOOOOOOO")
+
+listPrint(nPointCrossover("XXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOO", 6, 2))
+
 
