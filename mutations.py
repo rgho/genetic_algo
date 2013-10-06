@@ -21,5 +21,3 @@ def mutateGene(pGene, pValidChars):
 
 
 
-
-
