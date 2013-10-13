@@ -57,23 +57,20 @@ def makeTSPGene2(numLocations):
 	currentLoc = None
 	nextLoc = None
 
-	print locationsCharset
-	for i in range(numLocations-2):
-		# if needed init last and current
-		if lastLoc == None:
-			lastLoc = random.choice(locationsCharset)
-			locationsCharset = locationsCharset.replace(lastLoc, "")
-		if currentLoc == None:
-			currentLoc = random.choice(locationsCharset)
-			locationsCharset = locationsCharset.replace(currentLoc, "")
+	# init last and current
+	starterLoc = random.choice(locationsCharset)
+	lastLoc = starterLoc
+	locationsCharset = locationsCharset.replace(lastLoc, "")
+	currentLoc = random.choice(locationsCharset)
+	locationsCharset = locationsCharset.replace(currentLoc, "")
 
+	for i in range(numLocations-2):
 		# compute next link
 		nextLoc = random.choice(locationsCharset)
 		locationsCharset = locationsCharset.replace(nextLoc, "")
 		
 		# build a connection and add to gene
-		connection = str(lastLoc) + str(nextLoc) 
-		connectionDict[currentLoc] = connection # needs to place based on currentLoc
+		connectionDict[currentLoc] = str(lastLoc) + str(nextLoc)  # needs to place based on currentLoc
 
 		# now we imagine we have the next connection forward so we update our
 		# last and current loc accoridingly, so that we dont trigger intializion
@@ -81,6 +78,8 @@ def makeTSPGene2(numLocations):
 		lastLoc = currentLoc
 		currentLoc = nextLoc
 
+	#finally we connect the last position to the first on outside the loop.
+	connectionDict[currentLoc] = str(lastLoc) + str(starterLoc)
 	print connectionDict
 
 
@@ -111,5 +110,5 @@ def makeValidGene(pNumSpots,pNumCharsPerSpot, pUniqueInSpot):
 		gene.append(spot)
 	return gene
 
-makeTSPGene2(6)
+makeTSPGene2(7)
 #print makeValidGene(8,2,0)
