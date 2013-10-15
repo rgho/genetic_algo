@@ -16,8 +16,8 @@ def mutateGene(pGene, pValidChars):
 	#pGene = ("".join(pGene)) #UNCOMMENT FOR STRINGS
 	return pGene
 
-pop = [['A','A','A','A','A','A','A','A'], ['A','A','A','A','A','A','A','A'],['A','A','A','A','A','A','A','A'],['A','A','A','A','A','A','A','A']]
-print(mutatePopulation(pop,0.30,"1234567890"))
+#pop = [['A','A','A','A','A','A','A','A'], ['A','A','A','A','A','A','A','A'],['A','A','A','A','A','A','A','A'],['A','A','A','A','A','A','A','A']]
+#print(mutatePopulation(pop,0.30,"1234567890"))
 
 
 

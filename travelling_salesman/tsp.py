@@ -1,6 +1,10 @@
 import string
 import random
 import json
+import tspMating as mate
+import tspMutations as mutatate
+import traveltime as travel
+
 
 def theCharset():
 	return string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
@@ -216,9 +220,8 @@ def mainLoop():
 	generationNum+=1
 
 
-
-
-mainLoop()
+print mate.woah()
+#mainLoop()
 
 #addToCache("New Delhi, India","Washington DC, USA","AWHOLE BUNCH OF STUFF!")
 #print locationsList()

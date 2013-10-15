@@ -1,6 +1,10 @@
 import string
 import random
 
+def woah():
+	return "yes!"
+
+
 def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):
 	# INITIALIZE OFFSPRING LIST
 	offspring = []
@@ -133,7 +137,7 @@ def listPrint(pList):
 
 #TESTING
 #listPrint(cutAndSplice(['X','X','X','X','X','X','X','X'], ['A','A','A','A','A','A','A','A'],12))
-listPrint(nPointCrossover(['X','X','X','X','X','X','X','X'], ['A','A','A','A','A','A','A','A'],12,3))
+#listPrint(nPointCrossover(['X','X','X','X','X','X','X','X'], ['A','A','A','A','A','A','A','A'],12,3))
 #listPrint(cutAndSplice("----------", "OOOOOOOOOO",12))
 #listPrint(nPointCrossover("XXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOO", 6, 4))
 #listPrint(uniformCrossover("111133331111", "111144441111", 12))
