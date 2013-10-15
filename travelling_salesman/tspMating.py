@@ -8,7 +8,7 @@ def theOffspringOf(pGene1,pGene2,pNumChildren,pMethod):
 	elif pMethod == 'twoPointCrossover':
 		return twoPointCrossover(pGene1,pGene2,pNumChildren)
 	elif pMethod[1:] == 'PointCrossover' and pMethod[0].isdigit():
-		return nPointCrossover(pGene1,pGene2,pNumChildren,pMethod[0])
+		return nPointCrossover(pGene1,pGene2,pNumChildren,int(pMethod[0]))
 	elif pMethod == 'cutAndSplice':
 		return cutAndSplice(pGene1,pGene2, pNumChildren)
 	elif pMethod == 'uniformCrossover':
@@ -132,8 +132,9 @@ def uniformCrossover(pGene1,pGene2, pNumChildren):
 				pGene1[charNum] = pGene2[charNum]
 				pGene2[charNum] = tempChar
 
-		offspring.append("".join(pGene1))
-		offspring.append("".join(pGene2))
+		# if we want these as string we do offspring.append("".join(pGene1)) for both here.
+		offspring.append(pGene1)
+		offspring.append(pGene2)
 
 	return offspring[0:pNumChildren]
 
@@ -147,7 +148,7 @@ def listPrint(pList):
 		print item
 
 #TESTING
-#listPrint(cutAndSplice(['X','X','X','X','X','X','X','X'], ['A','A','A','A','A','A','A','A'],12))
+#listPrint(uniformCrossover(['X0','X0','X','X','X','X','X','X'], ['X0','X0','A','A','A','A','A','A'],50))
 #listPrint(nPointCrossover(['X','X','X','X','X','X','X','X'], ['A','A','A','A','A','A','A','A'],12,3))
 #listPrint(cutAndSplice("----------", "OOOOOOOOOO",12))
 #listPrint(nPointCrossover("XXXXXXXXXXXXXXXXXXXX", "OOOOOOOOOOOOOOOOOOOO", 6, 4))

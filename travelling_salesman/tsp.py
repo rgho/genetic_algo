@@ -10,6 +10,10 @@ import traveltime as travel
 def theCharset():
 	return string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
 
+def tspGeneCorrector(gene, numLocations):
+	
+	return connectionList
+
 def makeTSPGene(numLocations):
 	# this time we are going to do things smarter.
 	if numLocations < 3 or numLocations > 94:
@@ -112,7 +116,7 @@ def decodeGene(pGene, pCharset, plocCodeDict):
 def getTimeAndDistGoogleAPI(pLoc1,pLoc2):
 	details = dict()
 	details['status'] = 'OK'
-	details['distance'] = 300*abs(len(pLoc1)-len(pLoc2))
+	details['distance'] = float(1000*abs(len(pLoc1)-len(pLoc2)))
 	return details
 
 
@@ -136,9 +140,9 @@ def theTSPFitness(pGene,locCodes,locCodesToValues):
 	for locPair in locPairList:
 			pathDetails = getPathDetails(locPair[0],locPair[1])
 			if pathDetails["status"] != 'OK': return 0
-			score += int(pathDetails['distance'])
+			score += float(pathDetails['distance'])
 	#fitness
-	fitness = longestDist - score
+	fitness = 1000000000000/(score*score)#longestDist - score
 	return fitness
 
 
@@ -196,8 +200,10 @@ def printList(list):
 def mainLoop(currentGeneration, locInfo, generationMeta):
 	# CONSTANTS
 	mutationProb = 0.3
-	childrenPerParentPair = 6
-	initialPop = 100
+	matingType = 'onePointCrossover'
+	childrenPerParentPair = 100
+	initialPop = 1000
+
 
 	if currentGeneration == None:
 		generationMeta = dict()
@@ -240,7 +246,11 @@ def mainLoop(currentGeneration, locInfo, generationMeta):
 			generationMeta['totalFitness'] += generation[geneHash,'fitness']
 			#print str(geneHash) + " " + str(generation[geneHash,'fitness'])
 
-	generationMeta['avgFitness'] = generationMeta['totalFitness'] / (generationMeta['initialPop'] - generationMeta['numFatalGenes'])
+	if (generationMeta['initialPop'] - generationMeta['numFatalGenes']) != 0:
+		generationMeta['avgFitness'] = generationMeta['totalFitness'] / (generationMeta['initialPop'] - generationMeta['numFatalGenes'])
+	else:
+		generationMeta['avgFitness'] = 0
+
 	
 	#NOW WE HAVE SOME META INFO, AND A POPULATION WITH FITNESS CALCULATED.
 	# NEXT WE REACH SELECTION PHASE
@@ -257,12 +267,13 @@ def mainLoop(currentGeneration, locInfo, generationMeta):
 
 	
 	# A ONE LINE TO MAKE COUPLE OUT OF FIRST AND LAST AND INWARDS OF EACH LIST.
+	genes = list(set([i[0] for i in list(generation.keys())])) # make the current genehashes to a list again
 	couples = [(generation[genes[i],'gene'],generation[genes[-1-i],'gene']) for i in range(int(math.floor(len(genes)/2)))]
 	# INIT KIDS
 	kids = []
 	for parents in couples:
 		# a one liner to add all the kids of parent to the end of the kids list.
-		kids.extend(mate.theOffspringOf(parents[0],parents[1],childrenPerParentPair,"onePointCrossover"))
+		kids.extend(mate.theOffspringOf(parents[0],parents[1],childrenPerParentPair,matingType))
 
 	# for kid in kids:
 	# 	# one liner to mutate kids
@@ -285,4 +296,4 @@ def mainLoop(currentGeneration, locInfo, generationMeta):
 	else:
 		mainLoop(kids,locInfo,generationMeta)
 
-mainLoop(None,None)
+mainLoop(None,None,None)

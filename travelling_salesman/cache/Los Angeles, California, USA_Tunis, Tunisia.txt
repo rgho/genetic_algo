@@ -1,2 +1,0 @@
-status=OK
-distance=4200
