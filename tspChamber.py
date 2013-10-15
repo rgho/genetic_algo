@@ -73,22 +73,22 @@ def isValidTSPGene(pGene, pCharSet):
 		if i % 2 == 0 and (thisChar == pGene[i+1]): return False # catch doubles if they form somehow (mutation).
 	return True #kinda a lie - have checkled for invalid chars, dupes "AA" etc.
 
-def dictionaryToString(pDict):
-	return 0
-
-
 def stringToDict(pString):
 	thisDict = dict()
-	print pString
 	lines = pString.split('\n')
+	print lines
 	for thisLine in lines:
 		thisLine = thisLine.split('=',1)
+		print thisLine
 		thisDict[thisLine[0]]=thisLine[1]
 	return thisDict
 
 
-
-
+def dictToString(dict1):
+	string = ""
+	for key in dict1:
+		string = string + str(key) + "=" + str(dict1[key]) + "\n"
+	return string[0:len(string)-1] # delete trailing newline
 
 
 def decodeGene(pGene, pCharset, plocCodeDict):
@@ -105,52 +105,59 @@ def decodeGene(pGene, pCharset, plocCodeDict):
 	# decoded at this point contains all verteces, but the problems
 	return list(set(decoded))
 
-def getTimeAndDist(pLoc1,pLoc2):
+
+def getTimeAndDistGoogleAPI(pLoc1,pLoc2):
 	details = dict()
 	details['status'] = 'OK'
 	details['distance'] = 300*abs(len(pLoc1)-len(pLoc2))
 	return details
 
 
+def getPathDetails(pLoc1,pLoc2):
+	if isInCache(pLoc1,pLoc2):
+		pathDetails = stringToDict(getCache(pLoc1,pLoc2))
+	else:
+		pathDetails = getTimeAndDistGoogleAPI(pLoc1,pLoc2)
+		addToCache(pLoc1,pLoc2,dictToString(pathDetails))
+	return pathDetails
+
+
 def theTSPFitness(pGene,locCodes,locCodesToValues):
 	print pGene
 	if not isValidTSPGene(pGene,locCodes): return 0
-
 	# least fitness = earth circumference in meters * num cities
 	longestDist = 40075160 * len(pGene)
 	score = 0
 	locPairList = decodeGene(pGene,locCodes,locCodesToValues)
-	
 	for locPair in locPairList:
-		if isInCache(locPair[0],locPair[1]):
-			pathDetails = getCache(locPair[0],locPair[1])
-		else:
-			pathDetails = getTimeAndDist(locPair[0],locPair[1])
-			addToCache(locPair[0],locPair[1],pathDetails)
-
+			pathDetails = getPathDetails(locPair[0],locPair[1])
 			if pathDetails["status"] != 'OK': return 0
-			score += pathDetails['distance']
-
+			score += int(pathDetails['distance'])
 	#fitness
 	fitness = longestDist - score
 	return fitness
 
+
 def fileContents(filename):
 	txt = open(filename)
-	text = txt.read
-	#txt.close()
+	text = txt.read()
+	txt.close()
 	return text
 
-def getCached(pLoc1,pLoc2):
+
+def getCache(pLoc1,pLoc2):
 	return fileContents(filenameGen(pLoc1,pLoc2))
+
 
 def locationsList():
 	locs = [line.strip() for line in open('locs.txt')]
 	return locs
 
+
 def isInCache(pLoc1,pLoc2):
 	filename = filenameGen(pLoc1,pLoc2)
 	return isFile(filename)
+
 
 def isFile(filename):
 	try:
@@ -159,23 +166,28 @@ def isFile(filename):
 	except IOError:
 	   	return False
 
+
 def writeToFile(filename, data):
 	target = open(filename, 'w')
 	target.write(str(data))
 	target.close
 	return True
 
+
 def addToCache(pLoc1, pLoc2, pData):
 	filename = filenameGen(pLoc1,pLoc2)
 	writeToFile(filename,pData)
+
 
 def filenameGen(pLoc1,pLoc2):
 	filename = "cache/" + pLoc1 + "_" + pLoc2 + ".txt"
 	return filename
 
+
 def printList(list):
 	for i in range(len(list)):
 		print list[i]
+
 
 def mainLoop():
 	firstRun = True
@@ -200,8 +212,9 @@ def mainLoop():
 	generationNum+=1
 
 
-print stringToDict(fileContents('test.txt'))
-#mainLoop()
+
+
+mainLoop()
 
 #addToCache("New Delhi, India","Washington DC, USA","AWHOLE BUNCH OF STUFF!")
 #print locationsList()
