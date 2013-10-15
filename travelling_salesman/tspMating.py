@@ -1,8 +1,19 @@
 import string
 import random
 
-def woah():
-	return "yes!"
+def theOffspringOf(pGene1,pGene2,pNumChildren,pMethod):
+
+	if pMethod == 'onePointCrossover':
+		return onePointCrossover(pGene1,pGene2,pNumChildren)
+	elif pMethod == 'twoPointCrossover':
+		return twoPointCrossover(pGene1,pGene2,pNumChildren)
+	elif pMethod[1:] == 'PointCrossover' and pMethod[0].isdigit():
+		return nPointCrossover(pGene1,pGene2,pNumChildren,pMethod[0])
+	elif pMethod == 'cutAndSplice':
+		return cutAndSplice(pGene1,pGene2, pNumChildren)
+	elif pMethod == 'uniformCrossover':
+		return uniformCrossover(pGene1,pGene2, pNumChildren)
+	else: return "MATING METHOD NOT SUPPORTED"
 
 
 def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):

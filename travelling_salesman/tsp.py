@@ -1,8 +1,9 @@
 import string
 import random
 import json
+import math
 import tspMating as mate
-import tspMutations as mutatate
+import tspMutations as mutate
 import traveltime as travel
 
 
@@ -192,11 +193,13 @@ def printList(list):
 		print list[i]
 
 
-def mainLoop(currentGeneration):
+def mainLoop(currentGeneration, locInfo, generationMeta):
+	# CONSTANTS
+	mutationProb = 0.3
+	childrenPerParentPair = 6
+	initialPop = 100
+
 	if currentGeneration == None:
-		# CONSTANTS
-		childrenPerParentPair = 6
-		initialPop = 100
 		generationMeta = dict()
 		generationMeta['number'] = 0 
 
@@ -211,103 +214,75 @@ def mainLoop(currentGeneration):
 			locCodesToValues[locCodes[i]] = locationList[i]
 		population = makeTSPGeneration(initialPop,numLocs)
 
+		locInfo = dict()
+		locInfo['locCodes'] = locCodes
+		locInfo['locCodesToValues'] = locCodesToValues
 
+	else:
+		population = currentGeneration
+
+	# POPULATE GENERATION META DATA
 	generationMeta['number'] += 1
-	generation['initialPop'] = len(population)
+	generationMeta['initialPop'] = len(population)
 	generationMeta['totalFitness'] = 0
 	generationMeta['avgFitness'] = 0
+	generationMeta['numFatalGenes'] = 0
 
 	# CALCULATE FITNESS FOR EACH
 	generation = dict()
-	generationMeta['totalFitness'] += generation[geneHash,'fitness']
 	for gene in population:
 		geneHash = "".join(gene)
-		generation[geneHash,'fitness'] = theTSPFitness(gene,locCodes,locCodesToValues)
-		generation[geneHash,'gene'] = gene
-		generationMeta['totalFitness'] += generation[geneHash,'fitness']
-		print str(geneHash) + " " + str(generation[geneHash,'fitness'])
+		generation[geneHash,'fitness'] = theTSPFitness(gene,locInfo['locCodes'],locInfo['locCodesToValues'])
+		if generation[geneHash,'fitness'] == 0:
+			generationMeta['numFatalGenes'] +=1
+		else:
+			generation[geneHash,'gene'] = gene
+			generationMeta['totalFitness'] += generation[geneHash,'fitness']
+			#print str(geneHash) + " " + str(generation[geneHash,'fitness'])
 
-	generationMeta['avgFitness'] = generationMeta['totalFitness'] / generationMeta['initialPop']
+	generationMeta['avgFitness'] = generationMeta['totalFitness'] / (generationMeta['initialPop'] - generationMeta['numFatalGenes'])
 	
-	##INIT
-	numchildren = 6
+	#NOW WE HAVE SOME META INFO, AND A POPULATION WITH FITNESS CALCULATED.
+	# NEXT WE REACH SELECTION PHASE
 
+	# NOW WE GRAB A LIST OF THE GENE HASHES AND CALL THEM GENES! SNEAKY.
+	genes = list(set([i[0] for i in list(generation.keys())])) # GRAB JUST THE KEYS. INTUITION SAYS KEYS WILL BE TUPLES, WILL HAVE TO FILE GET FIRST ITEM.
+	generationMeta['numUnfitToReproduce'] = 0
+	for gene in genes:
+		# ONE LINER FOR REMOVING BELOW AVG PERFORMERS.
+		# NOTE POTENTIAL BUG IF DUPLICATE KEYS EXIST?
+		if generation[gene,'fitness'] <= generationMeta['avgFitness']: 
+			del generation[gene,'fitness']
+			generationMeta['numUnfitToReproduce'] +=1
 
-
-	## INTIALIZE A DICTIONARY TO STORE GENE FITNESS AND A VAR TO STORE
-	## TOTAL GENERATION FITNESS
-	geneFitness = dict()
-	generationFitness = 0
-
-	## CALCULATE FITNESS FOR EACH GENE, STORE IN DICT AND PRINT
-	for thisGene in genes:
-		geneFitness[thisGene] = theFitnessOf(thisGene)
-		generationFitness += geneFitness[thisGene]
-		print "		" + thisGene + "						" + str(geneFitness[thisGene])
-
-	## DETERMINE GENERATIONAL AVERAGE AND PRINT
-	avgGenFitness = float(generationFitness) / generationSize
-	print "AVG GENERATION FITNESS: " + str(avgGenFitness)
-
-	## KILL GENES THAT DID NOT PERFORM ABOVE AVERAGE
-	## PRODUCE REPORT FOR DEATHS AND REPRODUCTION
-	test1 = len(geneFitness.keys())
-	print "WHAT HAPPENED... GENERATION # " + str(pGenerationNum) + " :" 
-	for thisGene in geneFitness.keys():
-		if geneFitness[thisGene] >= avgGenFitness:
-			print "DIED W/O REPRODUCING:	 " + thisGene + "						" + str(geneFitness[thisGene])
-			del geneFitness[thisGene]
-
-	# ASSIGN SURVIVING GENES TO THE MAIN GENES LIST
-	test2 = len(geneFitness.keys())
-	genes = geneFitness.keys()
 	
-	## INIT EMPTY OFFSPRING LIST
-	offspring = []	
-	print 
+	# A ONE LINE TO MAKE COUPLE OUT OF FIRST AND LAST AND INWARDS OF EACH LIST.
+	couples = [(generation[genes[i],'gene'],generation[genes[-1-i],'gene']) for i in range(int(math.floor(len(genes)/2)))]
+	# INIT KIDS
+	kids = []
+	for parents in couples:
+		# a one liner to add all the kids of parent to the end of the kids list.
+		kids.extend(mate.theOffspringOf(parents[0],parents[1],childrenPerParentPair,"onePointCrossover"))
 
-	## PRODUCE REPORT ON 
-	# for thisGene in genes:
-	# 	print "REPRODUCED: " + thisGene + "	" + str(geneFitness[thisGene])
+	# for kid in kids:
+	# 	# one liner to mutate kids
+	# 	kids = mutate.mutate(kids, mutationProb)
+	print "==Kids=="
+	printList(kids[0:4])
 
-	## CHOOSE MATES (FIRST AND LAST ITEMS IN LIST) PRODUCE OFFSPRING AND REPORT
-	
-
-	while len(genes) >= 2:
-		# print "==FAMILY=="
-		# print "PARENT1: " + genes[0] + "	" + str(geneFitness[genes[0]])
-		# print "PARENT2: " + genes[-1] + "	" + str(geneFitness[genes[-1]])
-		newOffspring = theOffspringOf(genes[-1],genes[0],numchildren)
-		offspring.append(newOffspring)
-		# print "OFFSPRING: " + str(newOffspring)
-		# print "====="
-		#get rid of first and last itmes now that they have reporduced, they die. their children live on.
-		genes.pop(0)
-		genes.pop(-1)
-
-
-	# FORMAT THE OFFSPRING LIST
-	# flattens the weirdly nested list of offspring http://stackoverflow.com/questions/952914/making-a-flat-list-out-of-list-of-lists-in-python
-
-	offspring = [item for sublist in offspring for item in sublist]
-	print
-	print "NUM DIED: " + str(test1-test2)
-	print "GENERATION # " + str(pGenerationNum) + " :" 
-	print "NUM KIDS: " + str(len(offspring))
-	print "AVG PARENTS' GENERATION FITNESS: " + str(avgGenFitness)
-
-	## SINCE THE OFFSPRING IS THE NEW GENERATION, THEY BECOME THE genes LIST:
-	pGenerationNum += 1 
-	#genes = offspring
+	print "=="
+	print "gen num:" + str(generationMeta['number'])
+	print "initial pop:" +  str(generationMeta['initialPop'])
+	print "totalFitness: "  + str(generationMeta['totalFitness'])
+	print "avgFitness: " + str(generationMeta['avgFitness'])
+	print "num numFatalGenes: " +  str(generationMeta['numFatalGenes'])
+	print "numUnfitToReproduce: " + str(generationMeta['numUnfitToReproduce'])
+	print "=="
 
 	keepgoing = raw_input("Continue? ")
 	if not keepgoing == 'y':
 		quit()
 	else:
-		mainLoop(offspring,pGenerationNum)
+		mainLoop(kids,locInfo,generationMeta)
 
-
-
-
-
-mainLoop()
+mainLoop(None,None)
