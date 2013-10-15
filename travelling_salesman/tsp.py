@@ -192,12 +192,13 @@ def printList(list):
 		print list[i]
 
 
-def mainLoop():
-	firstRun = True
-	if firstRun:
+def mainLoop(currentGeneration):
+	if currentGeneration == None:
 		# CONSTANTS
+		childrenPerParentPair = 6
 		initialPop = 100
-		generationNum = 0
+		generationMeta = dict()
+		generationMeta['number'] = 0 
 
 		# SETUP
 		locationList = locationsList()
@@ -208,28 +209,105 @@ def mainLoop():
 		locCodesToValues = dict()
 		for i in range(numLocs):
 			locCodesToValues[locCodes[i]] = locationList[i]
-
 		population = makeTSPGeneration(initialPop,numLocs)
 
-		fitness = dict()
-		for gene in population:
-			geneHash = "".join(gene)
-			fitness[geneHash] = theTSPFitness(gene,locCodes,locCodesToValues)
-			print str(geneHash) + " " + str(fitness[geneHash])
+
+	generationMeta['number'] += 1
+	generation['initialPop'] = len(population)
+	generationMeta['totalFitness'] = 0
+	generationMeta['avgFitness'] = 0
+
+	# CALCULATE FITNESS FOR EACH
+	generation = dict()
+	generationMeta['totalFitness'] += generation[geneHash,'fitness']
+	for gene in population:
+		geneHash = "".join(gene)
+		generation[geneHash,'fitness'] = theTSPFitness(gene,locCodes,locCodesToValues)
+		generation[geneHash,'gene'] = gene
+		generationMeta['totalFitness'] += generation[geneHash,'fitness']
+		print str(geneHash) + " " + str(generation[geneHash,'fitness'])
+
+	generationMeta['avgFitness'] = generationMeta['totalFitness'] / generationMeta['initialPop']
 	
-	generationNum+=1
+	##INIT
+	numchildren = 6
 
 
-print mate.woah()
-#mainLoop()
 
-#addToCache("New Delhi, India","Washington DC, USA","AWHOLE BUNCH OF STUFF!")
-#print locationsList()
-#gene = makeTSPGene(10)
-#print decodeGene(gene)
+	## INTIALIZE A DICTIONARY TO STORE GENE FITNESS AND A VAR TO STORE
+	## TOTAL GENERATION FITNESS
+	geneFitness = dict()
+	generationFitness = 0
 
-#print gene
-#print isValidTSPGene(gene, theCharset()[0:10])
-#print isValidTSPGene(['JJ', 'CG', 'HB', 'EI', 'GD', 'AH', 'BE', 'FC', 'DF', 'IA'], theCharset()[0:10])
-#print isValidTSPGene(['EB', 'AC', 'BF', 'IE', 'DA', 'CH', 'JJ', 'FJ', 'GD', 'HG'], theCharset()[0:10])
-#print makeValidGene(8,2,0)
+	## CALCULATE FITNESS FOR EACH GENE, STORE IN DICT AND PRINT
+	for thisGene in genes:
+		geneFitness[thisGene] = theFitnessOf(thisGene)
+		generationFitness += geneFitness[thisGene]
+		print "		" + thisGene + "						" + str(geneFitness[thisGene])
+
+	## DETERMINE GENERATIONAL AVERAGE AND PRINT
+	avgGenFitness = float(generationFitness) / generationSize
+	print "AVG GENERATION FITNESS: " + str(avgGenFitness)
+
+	## KILL GENES THAT DID NOT PERFORM ABOVE AVERAGE
+	## PRODUCE REPORT FOR DEATHS AND REPRODUCTION
+	test1 = len(geneFitness.keys())
+	print "WHAT HAPPENED... GENERATION # " + str(pGenerationNum) + " :" 
+	for thisGene in geneFitness.keys():
+		if geneFitness[thisGene] >= avgGenFitness:
+			print "DIED W/O REPRODUCING:	 " + thisGene + "						" + str(geneFitness[thisGene])
+			del geneFitness[thisGene]
+
+	# ASSIGN SURVIVING GENES TO THE MAIN GENES LIST
+	test2 = len(geneFitness.keys())
+	genes = geneFitness.keys()
+	
+	## INIT EMPTY OFFSPRING LIST
+	offspring = []	
+	print 
+
+	## PRODUCE REPORT ON 
+	# for thisGene in genes:
+	# 	print "REPRODUCED: " + thisGene + "	" + str(geneFitness[thisGene])
+
+	## CHOOSE MATES (FIRST AND LAST ITEMS IN LIST) PRODUCE OFFSPRING AND REPORT
+	
+
+	while len(genes) >= 2:
+		# print "==FAMILY=="
+		# print "PARENT1: " + genes[0] + "	" + str(geneFitness[genes[0]])
+		# print "PARENT2: " + genes[-1] + "	" + str(geneFitness[genes[-1]])
+		newOffspring = theOffspringOf(genes[-1],genes[0],numchildren)
+		offspring.append(newOffspring)
+		# print "OFFSPRING: " + str(newOffspring)
+		# print "====="
+		#get rid of first and last itmes now that they have reporduced, they die. their children live on.
+		genes.pop(0)
+		genes.pop(-1)
+
+
+	# FORMAT THE OFFSPRING LIST
+	# flattens the weirdly nested list of offspring http://stackoverflow.com/questions/952914/making-a-flat-list-out-of-list-of-lists-in-python
+
+	offspring = [item for sublist in offspring for item in sublist]
+	print
+	print "NUM DIED: " + str(test1-test2)
+	print "GENERATION # " + str(pGenerationNum) + " :" 
+	print "NUM KIDS: " + str(len(offspring))
+	print "AVG PARENTS' GENERATION FITNESS: " + str(avgGenFitness)
+
+	## SINCE THE OFFSPRING IS THE NEW GENERATION, THEY BECOME THE genes LIST:
+	pGenerationNum += 1 
+	#genes = offspring
+
+	keepgoing = raw_input("Continue? ")
+	if not keepgoing == 'y':
+		quit()
+	else:
+		mainLoop(offspring,pGenerationNum)
+
+
+
+
+
+mainLoop()
