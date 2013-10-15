@@ -76,10 +76,8 @@ def isValidTSPGene(pGene, pCharSet):
 def stringToDict(pString):
 	thisDict = dict()
 	lines = pString.split('\n')
-	print lines
 	for thisLine in lines:
 		thisLine = thisLine.split('=',1)
-		print thisLine
 		thisDict[thisLine[0]]=thisLine[1]
 	return thisDict
 
@@ -115,8 +113,10 @@ def getTimeAndDistGoogleAPI(pLoc1,pLoc2):
 
 def getPathDetails(pLoc1,pLoc2):
 	if isInCache(pLoc1,pLoc2):
+		#print "used cache"
 		pathDetails = stringToDict(getCache(pLoc1,pLoc2))
 	else:
+		# print "not in cache, called API"
 		pathDetails = getTimeAndDistGoogleAPI(pLoc1,pLoc2)
 		addToCache(pLoc1,pLoc2,dictToString(pathDetails))
 	return pathDetails
