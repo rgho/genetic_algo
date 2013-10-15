@@ -1,5 +1,6 @@
 import string
 import random
+import json
 
 def theCharset():
 	return string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
@@ -62,15 +63,32 @@ def makeTSPGeneration(populationSize,numLocations):
 
 def isValidTSPGene(pGene, pCharSet):
 	spotValues = "".join([str(pCharSet[i])*2 for i in range(len(pCharSet))])
-	pGene = ''.join(pGene)
+	pGene = "".join(pGene)
 
 	for i in range(len(pGene)):
 		thisChar = pGene[i]
 		if thisChar == spotValues[i]: return False
 		if pGene.count(thisChar) != 2: return False # should be exactly 2!
 		#if pCharSet.count(thisChar) == 0: return False # we dont have to do this, because theres no way our genes get contaminated.
-		if i % 2 == 0 and (thisChar == pGene[i+1]): return False # catch doubles is they form somehow (mutation).
+		if i % 2 == 0 and (thisChar == pGene[i+1]): return False # catch doubles if they form somehow (mutation).
 	return True #kinda a lie - have checkled for invalid chars, dupes "AA" etc.
+
+def dictionaryToString(pDict):
+	return 0
+
+
+def stringToDict(pString):
+	thisDict = dict()
+	print pString
+	lines = pString.split('\n')
+	for thisLine in lines:
+		thisLine = thisLine.split('=',1)
+		thisDict[thisLine[0]]=thisLine[1]
+	return thisDict
+
+
+
+
 
 
 def decodeGene(pGene, pCharset, plocCodeDict):
@@ -88,24 +106,27 @@ def decodeGene(pGene, pCharset, plocCodeDict):
 	return list(set(decoded))
 
 def getTimeAndDist(pLoc1,pLoc2):
-	return 300*abs(len(pLoc1)-len(pLoc2))
+	details = dict()
+	details['status'] = 'OK'
+	details['distance'] = 300*abs(len(pLoc1)-len(pLoc2))
+	return details
 
 
-
-def theTSPFitness(pGene):
-	if not isValidTSPGene(0): return 0
+def theTSPFitness(pGene,locCodes,locCodesToValues):
+	print pGene
+	if not isValidTSPGene(pGene,locCodes): return 0
 
 	# least fitness = earth circumference in meters * num cities
 	longestDist = 40075160 * len(pGene)
 	score = 0
-	locPairlist = decode(pGene)
+	locPairList = decodeGene(pGene,locCodes,locCodesToValues)
 	
 	for locPair in locPairList:
-		if inCache(locPair):
-			pathDetails = getCache(locPair)
+		if isInCache(locPair[0],locPair[1]):
+			pathDetails = getCache(locPair[0],locPair[1])
 		else:
-			pathDetails = getTimeAndDist(locPair)
-			addToCache(locPair)
+			pathDetails = getTimeAndDist(locPair[0],locPair[1])
+			addToCache(locPair[0],locPair[1],pathDetails)
 
 			if pathDetails["status"] != 'OK': return 0
 			score += pathDetails['distance']
@@ -117,8 +138,11 @@ def theTSPFitness(pGene):
 def fileContents(filename):
 	txt = open(filename)
 	text = txt.read
-	txt.close()
+	#txt.close()
 	return text
+
+def getCached(pLoc1,pLoc2):
+	return fileContents(filenameGen(pLoc1,pLoc2))
 
 def locationsList():
 	locs = [line.strip() for line in open('locs.txt')]
@@ -137,7 +161,7 @@ def isFile(filename):
 
 def writeToFile(filename, data):
 	target = open(filename, 'w')
-	target.write(data)
+	target.write(str(data))
 	target.close
 	return True
 
@@ -146,19 +170,12 @@ def addToCache(pLoc1, pLoc2, pData):
 	writeToFile(filename,pData)
 
 def filenameGen(pLoc1,pLoc2):
-	filename = pLoc1 + "_" + pLoc2 + ".txt"
+	filename = "cache/" + pLoc1 + "_" + pLoc2 + ".txt"
 	return filename
 
 def printList(list):
 	for i in range(len(list)):
 		print list[i]
-
-
-
-
-
-
-
 
 def mainLoop():
 	firstRun = True
@@ -178,10 +195,13 @@ def mainLoop():
 			locCodesToValues[locCodes[i]] = locationList[i]
 
 		population = makeTSPGeneration(initialPop,numLocs)
+		fitnessDetails = theTSPFitness(population[0],locCodes,locCodesToValues)
+		print fitnessDetails
 	generationNum+=1
-	printList(decodeGene(population[0], locCodes, locCodesToValues))
 
-mainLoop()
+
+print stringToDict(fileContents('test.txt'))
+#mainLoop()
 
 #addToCache("New Delhi, India","Washington DC, USA","AWHOLE BUNCH OF STUFF!")
 #print locationsList()
