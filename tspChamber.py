@@ -123,7 +123,6 @@ def getPathDetails(pLoc1,pLoc2):
 
 
 def theTSPFitness(pGene,locCodes,locCodesToValues):
-	print pGene
 	if not isValidTSPGene(pGene,locCodes): return 0
 	# least fitness = earth circumference in meters * num cities
 	longestDist = 40075160 * len(pGene)
@@ -193,7 +192,7 @@ def mainLoop():
 	firstRun = True
 	if firstRun:
 		# CONSTANTS
-		initialPop = 1
+		initialPop = 100
 		generationNum = 0
 
 		# SETUP
@@ -207,8 +206,13 @@ def mainLoop():
 			locCodesToValues[locCodes[i]] = locationList[i]
 
 		population = makeTSPGeneration(initialPop,numLocs)
-		fitnessDetails = theTSPFitness(population[0],locCodes,locCodesToValues)
-		print fitnessDetails
+
+		fitness = dict()
+		for gene in population:
+			geneHash = "".join(gene)
+			fitness[geneHash] = theTSPFitness(gene,locCodes,locCodesToValues)
+			print str(geneHash) + " " + str(fitness[geneHash])
+	
 	generationNum+=1
 
 
