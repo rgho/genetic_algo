@@ -6,13 +6,77 @@ import tspMating as mate
 import tspMutations as mutate
 import traveltime as travel
 
-
 def theCharset():
 	return string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
 
-def tspGeneCorrector(gene, numLocations):
-	
-	return connectionList
+x = ['2','3','4','6']
+print x[0:2]+[1]+x[2:4]
+
+
+def writeToGene(toOrFromPos,whichCodon,whichGene,whatToWrite):
+	if toOrFromPos == 'to': pos = 1
+	if toOrFromPos == 'from': pos = 0
+	print pos
+	# check if whichgene[whichcodon is empty]
+	val = whichGene[whichCodon][pos]
+	print val
+	spot = ['','']
+	spot[pos] = val
+	#check if val is empty 
+	gene = gene[0:whichCodon] + "".join(spot) + gene[whichCodon:len(whichGene)] 
+	return gene
+
+writeToGene('to',3,['xx','xx','xx','xx','xx','xx','xx','xx'],"o")
+#writeToGene('to',3,['','','','','','','',''],"x")
+
+
+
+def tspGeneCorrector(gene, numLocations, pCharset):
+	# assumes that it gets a valid gene which was constructed by common elements in two parents and an additional random element from on parent.
+	genecopy = gene
+	for codonLoc in range(len(gene)):
+		codon = gene[codonLoc]
+		if codon !='':
+			whereFrom = codon[0]
+			whereTo = codon[0]
+			current = locCode[codonLoc]
+
+			writeToGene('from',whereTo,genecopy,current)
+			writeToGene('to',whereFrom,genecopy,current)
+
+	#at this point we should have a template!!!!
+	# that we can fill in.
+
+
+
+
+'''
+function writeSpot pGene pSpotNum pInOutPos
+   if "something already exists in spot thats not what im trying to write" then return "invalid operation"
+end writeSpot
+
+function fixGene pGene
+   put pGene into someGene
+   // First we figure out which spots are filled
+   // write a template that has all the imlied information in it.
+   repeat for each key thisKey in pGene
+      if not(pGene[thisKey] is empty) then
+         put char 1 of pGene[thisKey] into tWhereFrom
+         put char 2 of pGene[thisHey] into tWhereTo
+         put thisKey into tWhereCurrent
+         
+         //write the from spot of the where to spot of some gene, the current pos. 
+         put writeToSpot("from",tWhereTo,someGene,tCurrent) into pGene
+         put writeToSpot("to",tWhereFrom,someGene,tCurrent) inot pGene
+      end if
+   end repeat
+   
+   // NOW WE HAVE PGENE THAT IS FULLY TEMPLATED.
+   //now we simple fill in current and finish
+'''
+
+
+
 
 def makeTSPGene(numLocations):
 	# this time we are going to do things smarter.
@@ -296,4 +360,5 @@ def mainLoop(currentGeneration, locInfo, generationMeta):
 	else:
 		mainLoop(kids,locInfo,generationMeta)
 
-mainLoop(None,None,None)
+
+#mainLoop(None,None,None)

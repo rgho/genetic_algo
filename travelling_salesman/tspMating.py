@@ -67,6 +67,9 @@ def nPointCrossover(pGene1,pGene2,pNumChildren,pNumCrossovers):
 		offspring.append(parentClone1)
 		offspring.append(parentClone2)
 
+
+
+
 	# FUTURE DEV. IF YOU WANT TO REMOVE DUPES FROM OFFSPRING (THINK THRU IMPLICATIONS)
 	# A SET IN PYTHON HAS NO DUPLICATES. SO WE CONVERT OUT LIST TO A SET AND THEN
 	# BACK TO A LIST TO PURGE DUPES. NOTE THAT THE ORDER OF THE LIST IS DESTROYED :(
