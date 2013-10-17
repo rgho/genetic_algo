@@ -9,74 +9,167 @@ import traveltime as travel
 def theCharset():
 	return string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
 
-x = ['2','3','4','6']
-print x[0:2]+[1]+x[2:4]
-
-
 def writeToGene(toOrFromPos,whichCodon,whichGene,whatToWrite):
 	if toOrFromPos == 'to': pos = 1
 	if toOrFromPos == 'from': pos = 0
-	print pos
+	#print "which codon: " + str(whichCodon)
+	#print "postion: " + str(pos) 
 	# check if whichgene[whichcodon is empty]
+	
+	if whichCodon == 88: return whichGene # this may be the worlds ugliest hack, depending on
+	# _ not being a reserved char aka being in the charset but also depending on the num of cities
+	# in the prob to be less that 88
+	
+	spot = whichGene[whichCodon]
 	val = whichGene[whichCodon][pos]
-	print val
-	spot = ['','']
-	spot[pos] = val
-	#check if val is empty 
-	gene = gene[0:whichCodon] + "".join(spot) + gene[whichCodon:len(whichGene)] 
-	return gene
+	#print "current value: " +  str(val)
 
-writeToGene('to',3,['xx','xx','xx','xx','xx','xx','xx','xx'],"o")
+	if val == whatToWrite: return whichGene
+	if val == "_":
+		#spot = ['','']
+		#print "spot:"
+		#print spot
+		spot = list(spot)
+		spot[pos] = whatToWrite
+		#print "spot:"
+		#print spot
+
+		#check if val is empty
+		newGene =  whichGene[0:whichCodon] + ["".join(spot)] + whichGene[whichCodon+1:len(whichGene)]
+		return newGene
+	
+	return "ERROR, NON CONSISTANT VALUE ALREADY IN POS."
+
+#print writeToGene('to',2,['__','__','__','__','__','__','xx','xx'],'o')
 #writeToGene('to',3,['','','','','','','',''],"x")
 
+def codeBlankSpots(gene):
+	newGene = []
+	for codon in gene:
+		if codon == "":
+			newGene.append("__")
+		else:
+			newGene.append(codon)
+	return newGene
 
-
-def tspGeneCorrector(gene, numLocations, pCharset):
+def tspGeneTemplater(gene,locCodes):
 	# assumes that it gets a valid gene which was constructed by common elements in two parents and an additional random element from on parent.
+	gene = codeBlankSpots(gene)
 	genecopy = gene
+	charset = theCharset()
+
 	for codonLoc in range(len(gene)):
 		codon = gene[codonLoc]
-		if codon !='':
+		if codon !='__':
 			whereFrom = codon[0]
-			whereTo = codon[0]
-			current = locCode[codonLoc]
+			whereTo = codon[1]
+			current = locCodes[codonLoc]
 
-			writeToGene('from',whereTo,genecopy,current)
-			writeToGene('to',whereFrom,genecopy,current)
+			whereFromIndex = charset.index(whereFrom)  
+			whereToIndex = charset.index(whereTo)
+			current = locCodes[codonLoc]
+
+			genecopy = writeToGene('from',whereToIndex,genecopy,current)
+			genecopy = writeToGene('to',whereFromIndex,genecopy,current)
 
 	#at this point we should have a template!!!!
 	# that we can fill in.
+	return genecopy
 
+#print tspGeneTemplater(['BD', 'CA', '_B', 'A_'], theCharset())
 
+def templateToGene(gene):
+	# GETS A FULLY TEMPLATED GENE
+	# MUST NOW FILL UP THE CHARS TO MAKE A VALID GENE! WHAT A DAUNTING TASK!!
 
+	# FIRST WE GET THE CHARSETS WE ARE WORKING WITH
+	# ONE FOR TO AND ONE FOR FROM POSITIONS
+	#init
+	chars = theCharset()[0:len(gene)]
+	toChars = chars
+	fromChars = chars
 
-'''
-function writeSpot pGene pSpotNum pInOutPos
-   if "something already exists in spot thats not what im trying to write" then return "invalid operation"
-end writeSpot
+	# remove already existing chars
+	for codon in gene:
+		if codon[0] != "_": fromChars = fromChars.replace(codon[0],'',1)
+		if codon[1] != "_":
+			toChars = toChars.replace(codon[1],'',1)
+		else:
+			anEmptyToSpot = gene.index(codon)
+			currentLoc = chars[anEmptyToSpot]
 
-function fixGene pGene
-   put pGene into someGene
-   // First we figure out which spots are filled
-   // write a template that has all the imlied information in it.
-   repeat for each key thisKey in pGene
-      if not(pGene[thisKey] is empty) then
-         put char 1 of pGene[thisKey] into tWhereFrom
-         put char 2 of pGene[thisHey] into tWhereTo
-         put thisKey into tWhereCurrent
-         
-         //write the from spot of the where to spot of some gene, the current pos. 
-         put writeToSpot("from",tWhereTo,someGene,tCurrent) into pGene
-         put writeToSpot("to",tWhereFrom,someGene,tCurrent) inot pGene
-      end if
-   end repeat
-   
-   // NOW WE HAVE PGENE THAT IS FULLY TEMPLATED.
-   //now we simple fill in current and finish
-'''
+	# now we have a list of to and from chars that need to be placed in a valid configuration.
+	# choose a blank spot to start from (anEmptyTospot)
+	gene = writeToGene('from',anEmptyToSpot,gene,currentLoc)
+	cont = True
+	while cont:	
+		toLoc = random.choice(toChars)
+		toChars = toChars.replace(toLoc,'',1)
+		gene = writeToGene('from',anEmptyToSpot,gene,currentLoc)
 
+		currentLoc = toLoc
 
+	writeToGene('to',2,['__','__','x_','__','__','__','xx','xx'],'o')
 
+	return connectionList
+
+def completeTSPGene(pGene):
+	# this time we are going to do things smarter.
+	numLocations = len(pGene) 
+
+	# intialize
+	locationsCharset =  theCharset()[0:numLocations]
+	toLocations = locationsCharset
+	fromLocations = locationsCharset
+
+	locIndex = dict()
+	locValue = dict()
+	
+	# BUILD THE INDEX AND VALUE DICTS
+	for i in range(numLocations):
+		locIndex[locationsCharset[i]] = i
+		locValue[i] = locationsCharset[i]
+		#connectionList =  ["__" for x in range(numLocations)]
+
+	# remove existing options from charsrets.
+	for codon in pGene:
+		if codon[0] != "_": fromLocations = fromLocations.replace(codon[0],'',1)
+		if codon[1] != "_":
+			toLocations = toLocations.replace(codon[1],'',1)
+		else:
+			# grab details about a codon where the to location is empty. 
+			anEmptyToSpot = pGene.index(codon)
+			currentLoc = locationsCharset[anEmptyToSpot]
+
+	# we define an empty fromLoc, we have a currentLoc, and we get a toLoc!
+	fromLoc = "_"
+	#toLoc = random.choice(toLocations)
+	#toLocations = toLocations.replace(currentLoc, "")
+
+	for i in range(numLocations):
+		#place the from loc in the from position of the current loc
+		pGene[locIndex[currentLoc]] = str(fromLoc) + str(pGene[locIndex[currentLoc]])
+
+		# get a to loc.
+		toLoc = currentLoc
+		while toLoc == currentLoc:
+			if len(toLocations) == 0:
+				toLoc = locValue[anEmptyToSpot]
+			else:			
+				toLoc = random.choice(toLocations)
+				toLocations = toLocations.replace(toLoc, "")
+
+		#place it in the to position of the current loc
+		pGene[locIndex[currentLoc]] = str(pGene[locIndex[currentLoc]]) + str(toLoc)
+
+		#prepare to move to the new loc!
+		fromLoc = currentLoc
+		currentLoc = toLoc
+
+	pGene[locIndex[currentLoc]] = str(fromLoc) + str(pGene[locIndex[currentLoc]])
+	return pGene
+
+print completeTSPGene(['__','CD','__','__'])
 
 def makeTSPGene(numLocations):
 	# this time we are going to do things smarter.
@@ -96,7 +189,7 @@ def makeTSPGene(numLocations):
 	for i in range(numLocations):
 		locIndex[locationsCharset[i]] = i
 		locValue[i] = locationsCharset[i]
-		connectionList =  ["" for x in range(numLocations)] 
+		connectionList =  ["" for x in range(numLocations)]
 
 	# start with first pos in gene, remove it from options.
 	fromLoc = ""
