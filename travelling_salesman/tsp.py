@@ -2,6 +2,7 @@ import string
 import random
 import json
 import math
+import pdb
 import tspMating as mate
 import tspMutations as mutate
 import traveltime as travel
@@ -146,30 +147,47 @@ def completeTSPGene(pGene):
 	#toLoc = random.choice(toLocations)
 	#toLocations = toLocations.replace(currentLoc, "")
 
-	for i in range(numLocations):
-		#place the from loc in the from position of the current loc
-		pGene[locIndex[currentLoc]] = str(fromLoc) + str(pGene[locIndex[currentLoc]])
+	
+	for i in range(10):
 
-		# get a to loc.
-		toLoc = currentLoc
-		while toLoc == currentLoc:
-			if len(toLocations) == 0:
-				toLoc = locValue[anEmptyToSpot]
-			else:			
-				toLoc = random.choice(toLocations)
-				toLocations = toLocations.replace(toLoc, "")
+		print fromLoc
+		print "currentloc: " + currentLoc
+		print "to locs: " + str(toLocations)
+		print "from locs: " + str(fromLocations)
+		print pGene
+		print 
+		#place the from loc in the from position of the current loc
+		if fromLoc != "_": 
+			pGene[locIndex[currentLoc]] = str(fromLoc) + str(pGene[locIndex[currentLoc]][1])
+			fromLocations = fromLocations.replace(fromLoc,'',1)
+
+
+		if len(toLocations) == 0:
+			pGene[locIndex[currentLoc]] = str(fromLoc[0] ) + str(pGene[locIndex[currentLoc]][1])
+			return pGene
+
+		toLoc = pGene[locIndex[currentLoc]][1]	
+		if toLoc == "_":
+			# get a to loc only if needed
+			toLoc = currentLoc
+			while toLoc == currentLoc:
+				if len(toLocations) == 0:
+					toLoc = locValue[anEmptyToSpot]
+				else:			
+					toLoc = random.choice(toLocations)
+					toLocations = toLocations.replace(toLoc, "")
 
 		#place it in the to position of the current loc
-		pGene[locIndex[currentLoc]] = str(pGene[locIndex[currentLoc]]) + str(toLoc)
+		pGene[locIndex[currentLoc]] = str(pGene[locIndex[currentLoc]][0]) + str(toLoc)
 
 		#prepare to move to the new loc!
 		fromLoc = currentLoc
 		currentLoc = toLoc
 
-	pGene[locIndex[currentLoc]] = str(fromLoc) + str(pGene[locIndex[currentLoc]])
+	pGene[locIndex[currentLoc]] = str(fromLoc) + str(pGene[locIndex[currentLoc]][0])
 	return pGene
 
-print completeTSPGene(['__','CD','__','__'])
+print completeTSPGene(['__','CD','_B','B_','__'])
 
 def makeTSPGene(numLocations):
 	# this time we are going to do things smarter.
@@ -203,7 +221,7 @@ def makeTSPGene(numLocations):
 
 		# get a to loc.
 		toLoc = currentLoc
-		while toLoc == currentLoc:
+		while toLoc == currentLoc or toLoc == fromLoc:
 			if len(toLocations) == 0:
 				toLoc = locValue[0]
 			else:			
