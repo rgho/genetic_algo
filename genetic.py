@@ -110,7 +110,7 @@ def mainLoop(pGenes,pGenerationNum):
 	if pGenes == None:
 		print "A NEW GENERATION WAS STARTED"
 		##CONSTANTS
-		generationSize = 10000
+		generationSize = 2000
 		pGenerationNum = 1
 		## IF FIRST GEN THEN CREATE FIRST GENERATION
 		genes = someRandomGenes(generationSize)
@@ -140,7 +140,7 @@ def mainLoop(pGenes,pGenerationNum):
 	print "WHAT HAPPENED... GENERATION # " + str(pGenerationNum) + " :" 
 	for thisGene in geneFitness.keys():
 		if geneFitness[thisGene] >= avgGenFitness:
-			print "DIED W/O REPRODUCING:	 " + thisGene + "						" + str(geneFitness[thisGene])
+			#print "DIED W/O REPRODUCING:	 " + thisGene + "						" + str(geneFitness[thisGene])
 			del geneFitness[thisGene]
 
 	# ASSIGN SURVIVING GENES TO THE MAIN GENES LIST

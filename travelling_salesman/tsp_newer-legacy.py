@@ -114,40 +114,6 @@ def templateToGene(gene):
 
 	return connectionList
 
-
-def pathMaker(numLocations):
-	locationsCharset =  theCharset()[0:numLocations]
-	locationsCharset = list(locationsCharset)
-	random.shuffle(locationsCharset)
-	locationsCharset = "".join(locationsCharset)
-	print locationsCharset
-
-pathMaker(20)
-
-def makeTSPGeneX(numLocations):
-	# this time we are going to do things smarter.
-	if numLocations < 3 or numLocations > 94:
-		print "MAX LOCATIONS IS 94, MIN LOCATIONS IS 3."
-		quit()
-
-	# intialize
-	locationsCharset =  theCharset()[0:numLocations]
-	path =  pathMaker(numLocations)
-	#fromLocations = locationsCharset
-
-	locIndex = dict()
-	locValue = dict()
-	
-	# BUILD THE INDEX AND VALUE DICTS
-	for i in range(numLocations):
-		locIndex[locationsCharset[i]] = i
-		locValue[i] = locationsCharset[i]
-		connectionList =  ["" for x in range(numLocations)]
-
-	
-	return connectionList
-
-
 def completeTSPGene(pGene):
 	# this time we are going to do things smarter.
 	numLocations = len(pGene) 
@@ -224,7 +190,7 @@ def completeTSPGene(pGene):
 	pGene[locIndex[currentLoc]] = str(fromLoc) + str(pGene[locIndex[currentLoc]][0])
 	return pGene
 
-#print completeTSPGene(['__','CD','_B','B_','__','__','AC','FI','HA'])
+print completeTSPGene(['__','CD','_B','B_','__','__','AC','FI','HA'])
 
 def makeTSPGene(numLocations):
 	# this time we are going to do things smarter.
