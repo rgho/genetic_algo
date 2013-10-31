@@ -10,6 +10,57 @@ import traveltime as travel
 def theCharset():
 	return string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
 
+def pathGenerator():
+	path = []
+	charset = "ABCD"
+	charset = list(charset)
+
+	while (len(charset) > 0):
+		next = random.choice(charset)
+		path.append(next)
+		charset.remove(next)
+	
+	print charset
+	print path
+
+def pathToConnections(path):
+	path.append(path[0])
+	path.append(path[1])
+
+	for i in range(len(path)-2):
+		connection = path[i:i+3]
+		print connection
+		print str(connection[0]) + str(connection[2]) + " in position " + str(connection[1])
+
+
+def pathJoiner():
+	#path_segments = ['LOP','BAC','FYZ','CDF','REX', 'XWL']
+	path_segments = ['ABC','DEF','XYZ']
+	# CAREFUL: THERE IS SOME INSANITY LOGIC GOING ON HERE!
+	index = 0
+	while index < len(path_segments):
+		next = path_segments[index][-1]
+	
+		for j in range(len(path_segments)):
+			prev = path_segments[j][0]
+			if (next == prev) and (next != '_') :
+				path_segments[index] = path_segments[index] + path_segments[j][1:]
+				path_segments[j] = '_'
+				index -=1
+		index +=1
+	path_segments = [x for x in path_segments if x != '_']
+	return path_segments
+
+print pathJoiner()
+
+def finalAssembly(partial_segments, charset):
+	#get partial segments and use path joiner to "flatten them"
+	# generate a charset that is the difference of all avail chars and those chars already used in the segments
+	# finallt make eahc individual char and the and segment an element in the list and just use something like
+	# pathgen to concatinate!
+
+
+
 def writeToGene(toOrFromPos,whichCodon,whichGene,whatToWrite):
 	if toOrFromPos == 'to': pos = 1
 	if toOrFromPos == 'from': pos = 0
