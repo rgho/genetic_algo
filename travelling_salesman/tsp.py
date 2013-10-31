@@ -19,7 +19,7 @@ def pathGenerator():
 		next = random.choice(charset)
 		path.append(next)
 		charset.remove(next)
-	
+
 	print charset
 	print path
 
@@ -50,12 +50,15 @@ def pathJoiner(path_segments = ['ABC','DEF','XYZ']):
 	path_segments = [x for x in path_segments if x != '_']
 	return path_segments
 
-print pathJoiner()
 
 def finalAssembly(partial_segments, charset):
 	#get partial segments and use path joiner to "flatten them"
-	partial_segments = pathJoiner(partial_segments)
+	partial_segments = sum()
 	# generate a charset that is the difference of all avail chars and those chars already used in the segments
+	
+	alreadyUsedChars = [item for sublist in l for item in sublist] 
+	for thisChar in alreadyUsedChars
+		charset = charset.replace(thisChar, "")
 	# finallt make eahc individual char and the and segment an element in the list and just use something like
 	# pathgen to concatinate!
 
