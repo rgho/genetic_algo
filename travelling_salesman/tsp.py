@@ -33,9 +33,8 @@ def pathToConnections(path):
 		print str(connection[0]) + str(connection[2]) + " in position " + str(connection[1])
 
 
-def pathJoiner():
+def pathJoiner(path_segments = ['ABC','DEF','XYZ']):
 	#path_segments = ['LOP','BAC','FYZ','CDF','REX', 'XWL']
-	path_segments = ['ABC','DEF','XYZ']
 	# CAREFUL: THERE IS SOME INSANITY LOGIC GOING ON HERE!
 	index = 0
 	while index < len(path_segments):
@@ -55,6 +54,7 @@ print pathJoiner()
 
 def finalAssembly(partial_segments, charset):
 	#get partial segments and use path joiner to "flatten them"
+	partial_segments = pathJoiner(partial_segments)
 	# generate a charset that is the difference of all avail chars and those chars already used in the segments
 	# finallt make eahc individual char and the and segment an element in the list and just use something like
 	# pathgen to concatinate!
