@@ -8,19 +8,21 @@ import tspMutations as mutate
 import traveltime as travel
 
 def theCharset():
-	return string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
+	# NO UNDERSCORES
+	charset = string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
+	charset = charset.replace('_','')
+	return charset
+
 
 def pathGenerator(pieces_list):
-	# GIVEN A CHARSET, GENERATES A RANDOM PATH USING EACH CHAR ONCE
+	# GIVEN A peices, GENERATES A RANDOM PATH USING EACH CHAR ONCE
 	path = []
-	charset = "ABCD"
-	charset = list(charset)
-
-	while (len(charset) > 0):
-		next = random.choice(charset)
+	while (len(pieces_list) > 0):
+		next = random.choice(pieces_list)
 		path.append(next)
-		charset.remove(next)
+		pieces_list.remove(next)
 
+	#FLATTEN?
 	#path = ''.join(path)
 	return path
 
@@ -169,7 +171,6 @@ def templateToGene(gene):
 		currentLoc = toLoc
 
 	writeToGene('to',2,['__','__','x_','__','__','__','xx','xx'],'o')
-
 	return connectionList
 
 
@@ -179,7 +180,6 @@ def pathMaker(numLocations):
 	random.shuffle(locationsCharset)
 	locationsCharset = "".join(locationsCharset)
 	print locationsCharset
-
 
 
 def makeTSPGeneX(numLocations):
