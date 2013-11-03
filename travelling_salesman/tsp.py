@@ -10,7 +10,8 @@ import traveltime as travel
 def theCharset():
 	return string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
 
-def pathGenerator():
+def pathGenerator(pieces_list):
+	# GIVEN A CHARSET, GENERATES A RANDOM PATH USING EACH CHAR ONCE
 	path = []
 	charset = "ABCD"
 	charset = list(charset)
@@ -20,10 +21,11 @@ def pathGenerator():
 		path.append(next)
 		charset.remove(next)
 
-	print charset
-	print path
+	#path = ''.join(path)
+	return path
 
-def pathToConnections(path):
+def pathToConnectionsList(path):
+	# USED TO CONVERT A PATH LIKE AFHRBSCFT BACK TO THE GENE REPRESENTATION WITH EDGE PAIRS
 	path.append(path[0])
 	path.append(path[1])
 
@@ -33,8 +35,9 @@ def pathToConnections(path):
 		print str(connection[0]) + str(connection[2]) + " in position " + str(connection[1])
 
 
-def pathJoiner(path_segments = ['ABC','DEF','XYZ']):
-	#path_segments = ['LOP','BAC','FYZ','CDF','REX', 'XWL']
+def independantPathPieces(path_segments = ['ABC','DEF','XYZ']):
+	# TAKES CODONS FOR EACH OR SOME SUBSET OF GENES AND MAKES A STRING PATH OF MIN LENGTH
+	path_segments = ['LOP','BAC','FYZ','CDF','REX', 'XWL']
 	# CAREFUL: THERE IS SOME INSANITY LOGIC GOING ON HERE!
 	index = 0
 	while index < len(path_segments):
@@ -50,18 +53,19 @@ def pathJoiner(path_segments = ['ABC','DEF','XYZ']):
 	path_segments = [x for x in path_segments if x != '_']
 	return path_segments
 
+print independantPathPieces()
+print pathToConnectionsList(pathGenerator())
 
-def finalAssembly(partial_segments, charset):
-	#get partial segments and use path joiner to "flatten them"
-	partial_segments = sum()
+
+def finalAssembly(independantPathPieces, charset="ABCDEF"):
 	# generate a charset that is the difference of all avail chars and those chars already used in the segments
-	
-	alreadyUsedChars = [item for sublist in l for item in sublist] 
-	for thisChar in alreadyUsedChars
-		charset = charset.replace(thisChar, "")
-	# finallt make eahc individual char and the and segment an element in the list and just use something like
-	# pathgen to concatinate!
+	alreadyUsedChars = ''.join(independantPathPieces)
+	validchars = (set(charset) - set(alreadyUsedChars))
 
+	# now make a list of the independant pieces and the valid chars
+	all_pieces = validchars + set(independantPathPieces)
+
+#print finalAssembly(['ABC','DEF','XYZ'])
 
 
 def writeToGene(toOrFromPos,whichCodon,whichGene,whatToWrite):
@@ -176,7 +180,7 @@ def pathMaker(numLocations):
 	locationsCharset = "".join(locationsCharset)
 	print locationsCharset
 
-pathMaker(20)
+
 
 def makeTSPGeneX(numLocations):
 	# this time we are going to do things smarter.
