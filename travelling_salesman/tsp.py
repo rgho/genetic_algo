@@ -13,7 +13,6 @@ def theCharset():
 	charset = charset.replace('_','')
 	return charset
 
-
 def pathGenerator(pieces_list):
 	# GIVEN A peices, GENERATES A RANDOM PATH USING EACH CHAR ONCE
 	path = []
@@ -26,48 +25,150 @@ def pathGenerator(pieces_list):
 	#path = ''.join(path)
 	return path
 
-def pathToConnectionsList(path):
-	# USED TO CONVERT A PATH LIKE AFHRBSCFT BACK TO THE GENE REPRESENTATION WITH EDGE PAIRS
+def pathToConnectionsList(path, charset = 'ABCDE'):
+	# TAKES A PATH and converts it to the edge format of a gene. still needs to be finished.
 	path.append(path[0])
 	path.append(path[1])
 
+	details = dict()
 	for i in range(len(path)-2):
 		connection = path[i:i+3]
-		print connection
-		print str(connection[0]) + str(connection[2]) + " in position " + str(connection[1])
+		details[str(connection[1])] = str(connection[0]) + str(connection[2])
+	
+	#print details
+	conList = []
+	for i in range(len(charset)):
+		conList.append(details[charset[i]])
+
+	return conList
+
+#print pathToConnectionsList(['A','C','B','D','E'])
 
 
-def independantPathPieces(path_segments = ['ABC','DEF','XYZ']):
-	# TAKES CODONS FOR EACH OR SOME SUBSET OF GENES AND MAKES A STRING PATH OF MIN LENGTH
-	path_segments = ['LOP','BAC','FYZ','CDF','REX', 'XWL']
+
+def independantPathPieces(path_segments = []):
+	# TAKES EDGE SEGMENTS FOR EACH GENE OR SOME SUBSET OF GENES AND MAKES A STRING PATH OF MIN LENGTH
+	#path_segments = ['LOP','BAC','FYZ','CDF','REX', 'XWL']
+	
 	# CAREFUL: THERE IS SOME INSANITY LOGIC GOING ON HERE!
+	#print "path seg: " + str(path_segments)
 	index = 0
 	while index < len(path_segments):
-		next = path_segments[index][-1]
+		next = path_segments[index][-2:]
+		#print "next: " + next
 	
 		for j in range(len(path_segments)):
-			prev = path_segments[j][0]
+			prev = path_segments[j][0:2]
+			#print "prev: " + prev
 			if (next == prev) and (next != '_') :
-				path_segments[index] = path_segments[index] + path_segments[j][1:]
+				path_segments[index] = path_segments[index] + path_segments[j][2:]
 				path_segments[j] = '_'
 				index -=1
 		index +=1
 	path_segments = [x for x in path_segments if x != '_']
+	#print "path seg: " + str(path_segments)
 	return path_segments
 
-print independantPathPieces()
-print pathToConnectionsList(pathGenerator())
 
 
-def finalAssembly(independantPathPieces, charset="ABCDEF"):
+def indPathPieces(segmentsList):
+
+	for thisSegment in segmentsList:
+
+		for anotherSegment in segmentsList:
+			if thisSegment[1:2] == anotherSegment[-2:]:
+				newSegment = thisSegment
+
+
+
+#print independantPathPieces()
+#print pathToConnectionsList(pathGenerator())
+
+def finalAssembly(independantPathPieces, charset="ABCDE"):
+	#TAKES INDEPENDANT PATHS
 	# generate a charset that is the difference of all avail chars and those chars already used in the segments
 	alreadyUsedChars = ''.join(independantPathPieces)
 	validchars = (set(charset) - set(alreadyUsedChars))
+	#now make a list of the independant pieces and the valid chars
+	# the | operator unions two sets.
+	all_pieces = validchars | set(independantPathPieces)
+	all_pieces = list(all_pieces)
+	return pathGenerator(all_pieces)
 
-	# now make a list of the independant pieces and the valid chars
-	all_pieces = validchars + set(independantPathPieces)
 
-#print finalAssembly(['ABC','DEF','XYZ'])
+def codeBlankSpots(gene):
+	newGene = []
+	for codon in gene:
+		if codon == '':
+			newGene.append("__")
+		else:
+			newGene.append(codon)
+	return newGene
+
+
+def geneFormatToPathSegments(gene):
+	charset = theCharset()
+	segments = []
+	for i in range(len(gene)):
+		spot = charset[i]
+		if gene[i] != '__':
+			segment = str(gene[i][0]) + str(spot) + str(gene[i][1])
+			segments.append(segment)
+	return segments
+
+
+
+def greedyCrossover(pGene1,pGene2, pNumChildren):	
+	offspring = []
+	
+	# WE BEGIN GENERATING OFFSRPING TILL WE HAVE ENOUGH!
+	loopCount = 0
+	geneLength = len(pGene1)
+	while (len(offspring) < pNumChildren) and loopCount < 50000:
+		loopCount+=1 #safeguard in case something goes wrong and loops infinitely
+
+		usedUnmatchedSegment = False
+		child = ['' for i in range(geneLength)]
+		for charNum in range(geneLength):
+			if (pGene1[charNum] == pGene2[charNum]):
+				#place this segment into child since both parent have it!
+				child[charNum] = pGene1[charNum]
+			else:
+				#WE WANT EXACTLY ONE SEGMENT FROM ONE PARENT TO MAKE IT IN
+				if ((usedUnmatchedSegment == False) and (round(random.uniform(0,1)) == 1)):
+					usedUnmatchedSegment = True
+					child[charNum] = pGene1[charNum] # A BIT OF A HACK SINCE THE CHILD WILL NEVER
+					# GET A UNMATCHED GENE FROM PARENT 2.
+
+		# now we have a valid gene with blank spots!
+		# lets fill 'em.
+		# code blank spots with '__'
+		child = codeBlankSpots(child)
+		print child
+		#next we convert to segments. # for example RT in the A spot becomes RAT. and so on.
+		child = geneFormatToPathSegments(child)
+		print child
+
+		#next we remove the redundant parts of the segments
+		child = independantPathPieces(child)
+		print child
+
+		#next we use finalAssembly to make it a full string path!
+		child = finalAssembly(child)
+		print child
+		#finally we convert it back to a gene
+		child = pathToConnectionsList(child)
+		print child
+
+		# if we want these as string we do offspring.append("".join(pGene1)) for both here.
+		offspring.append(child)
+
+	return offspring[0:pNumChildren]
+
+print greedyCrossover(['EC', 'CD', 'AB', 'BE','DA'],['EC', 'XX', 'XX', 'XX','XX'], 3)
+
+
+
 
 
 def writeToGene(toOrFromPos,whichCodon,whichGene,whatToWrite):
@@ -104,14 +205,7 @@ def writeToGene(toOrFromPos,whichCodon,whichGene,whatToWrite):
 #print writeToGene('to',2,['__','__','__','__','__','__','xx','xx'],'o')
 #writeToGene('to',3,['','','','','','','',''],"x")
 
-def codeBlankSpots(gene):
-	newGene = []
-	for codon in gene:
-		if codon == "":
-			newGene.append("__")
-		else:
-			newGene.append(codon)
-	return newGene
+
 
 def tspGeneTemplater(gene,locCodes):
 	# assumes that it gets a valid gene which was constructed by common elements in two parents and an additional random element from on parent.
@@ -202,7 +296,6 @@ def makeTSPGeneX(numLocations):
 		locValue[i] = locationsCharset[i]
 		connectionList =  ["" for x in range(numLocations)]
 
-	
 	return connectionList
 
 
