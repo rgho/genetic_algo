@@ -6,6 +6,40 @@ import pdb
 import tspMating as mate
 import tspMutations as mutate
 import traveltime as travel
+from collections import deque
+
+def merge(segments):
+    starts_merged = {}
+    ends_merged = {}
+    for (segstart, segend) in segments:
+        # This is the tricky case: joining two known paths
+        if segstart in ends_merged and segend in starts_merged:
+            start_path = ends_merged[segstart]
+            end_path = starts_merged[segend]
+            start_path.extend(end_path)
+            merged_path = start_path # misomner
+            
+            # update the start/end to point to the merged path
+            starts_merged[merged_path[0]] = merged_path
+            ends_merged[merged_path[-1]] = merged_path
+            # delete the stale start/end
+            del ends_merged[segstart]
+            del starts_merged[segend]
+        elif segstart in ends_merged:
+            current_path = ends_merged[segstart]
+            current_path.append(segend)
+            ends_merged[segend] = current_path
+            del ends_merged[segstart] # no longer a path end
+        elif segend in starts_merged:
+            current_path = starts_merged[segend]
+            current_path.appendleft(segstart)
+            starts_merged[segstart] = current_path
+            del starts_merged[segend] # no longer a path start
+        else:
+            starts_merged[segstart] = deque([segstart, segend])
+            ends_merged[segend] = starts_merged[segstart] # This *shares* the deques
+
+    return map(lambda x:''.join(x), starts_merged.values())
 
 def theCharset():
 	# NO UNDERSCORES
@@ -25,10 +59,9 @@ def pathGenerator(pieces_list):
 	#path = ''.join(path)
 	return path
 
-def pathToConnectionsList(path, charset = 'ABCDE'):
-	# TAKES A PATH and converts it to the edge format of a gene. still needs to be finished.
-	path.append(path[0])
-	path.append(path[1])
+def pathToConnectionsList(path, charset = 'ABCDEFG'):
+	# TAKES A PATH and converts it to the edge format of a gene. still needs to be finished.'str' object has no attribute 'append'
+	path = path + path[0] +path[1]
 
 	details = dict()
 	for i in range(len(path)-2):
@@ -39,7 +72,6 @@ def pathToConnectionsList(path, charset = 'ABCDE'):
 	conList = []
 	for i in range(len(charset)):
 		conList.append(details[charset[i]])
-
 	return conList
 
 #print pathToConnectionsList(['A','C','B','D','E'])
@@ -127,41 +159,41 @@ def geneFormatToPathSegmentsMini(gene):
 	return list(set(segments))
 	return segments
 
-print geneFormatToPathSegmentsMini(['CD', 'AB', 'BE', 'EC']) #DA
+#print geneFormatToPathSegmentsMini(['CD', 'AB', 'BE', 'EC']) #DA
 
 #['ABECD', '', '__', '__']
 
-def joinPathBits(pathBits):
-	index = 0
-	for index in range(len(pathBits)):
-		# figure out nex and prev point
+# def joinPathBits(pathBits):
+# 	index = 0
+# 	for index in range(len(pathBits)):
+# 		# figure out nex and prev point
 		
-		while matchFound:
-			matchFound = False
-			next = pathBits[index][-1]
-			prev = pathBits[index][0]
+# 		while matchFound:
+# 			matchFound = False
+# 			next = pathBits[index][-1]
+# 			prev = pathBits[index][0]
 
-			while True
-			index2 = 1				
-			if next == pathBits[index2][0] and next != '_':
-				join one way
-				matchFound = True
-			elif prev == pathBits[index2][-1] and prev != '_':
-				join another
-				matchFound = True
+# 			while True
+# 			index2 = 1				
+# 			if next == pathBits[index2][0] and next != '_':
+# 				join one way
+# 				matchFound = True
+# 			elif prev == pathBits[index2][-1] and prev != '_':
+# 				join another
+# 				matchFound = True
 
 
 
-def findpaths(segments):
-	path_starts = {} #  path_start:path
-	path_ends = {} # path_end:path
-	starts = {} # start:end of a segment
-	#path_prefixes = []
-	for segment in segments:
-		starts[segment[0]] = segment[1]
-	for start in starts:
-		next = segment[start]
-		if next in starts: # a longer path's been found
+# def findpaths(segments):
+# 	path_starts = {} #  path_start:path
+# 	path_ends = {} # path_end:path
+# 	starts = {} # start:end of a segment
+# 	#path_prefixes = []
+# 	for segment in segments:
+# 		starts[segment[0]] = segment[1]
+# 	for start in starts:
+# 		next = segment[start]
+# 		if next in starts: # a longer path's been found
 
 
 def geneFormatToPathSegments(gene):
@@ -205,12 +237,12 @@ def greedyCrossover(pGene1,pGene2, pNumChildren):
 		print "blank"
 		print child
 		#next we convert to segments. # for example RT in the A spot becomes RAT. and so on.
-		child = geneFormatToPathSegments(child)
+		child = geneFormatToPathSegmentsMini(child)
 		print "to path segments:"
 		print child
 
 		#next we remove the redundant parts of the segments
-		child = independantPathPieces(child)
+		child = merge(child)
 		print "ind pieces"
 		print child
 
@@ -228,10 +260,8 @@ def greedyCrossover(pGene1,pGene2, pNumChildren):
 
 	return offspring[0:pNumChildren]
 
-#print greedyCrossover(['EC', 'CD', 'AB', 'BE','DA'],['EC', 'XX', 'XX', 'XX','XX'], 3)
+print greedyCrossover(['EC', 'CD', 'AB', 'BE','DA'],['EC', 'XX', 'XX', 'XX','XX'], 3)
 #print independantPathPieces(['EAC', 'CBD', 'ACB', 'BDE', 'DEA'])
-
-
 
 
 
