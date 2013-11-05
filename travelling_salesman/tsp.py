@@ -49,26 +49,32 @@ def pathToConnectionsList(path, charset = 'ABCDE'):
 def independantPathPieces(path_segments = []):
 	# TAKES EDGE SEGMENTS FOR EACH GENE OR SOME SUBSET OF GENES AND MAKES A STRING PATH OF MIN LENGTH
 	#path_segments = ['LOP','BAC','FYZ','CDF','REX', 'XWL']
-	
+	#path_segments = ['EAC','CBD']
+	path_segments = ['EA','CB','AC','BD', 'DE']
 	# CAREFUL: THERE IS SOME INSANITY LOGIC GOING ON HERE!
 	#print "path seg: " + str(path_segments)
 	index = 0
 	while index < len(path_segments):
-		next = path_segments[index][-2:]
-		#print "next: " + next
+		next = path_segments[index][-1]
+		
 	
 		for j in range(len(path_segments)):
-			prev = path_segments[j][0:2]
-			#print "prev: " + prev
+			prev = path_segments[j][0]
+			print "next: " + next
+			print "prev: " + prev
+			print "index:" + str(index)
+			print path_segments
 			if (next == prev) and (next != '_') :
-				path_segments[index] = path_segments[index] + path_segments[j][2:]
+				path_segments[index] = path_segments[index] + path_segments[j][1:]
 				path_segments[j] = '_'
-				index -=1
+				next = path_segments[index][-1]
+				#index -=1
+
+			print path_segments
 		index +=1
 	path_segments = [x for x in path_segments if x != '_']
 	#print "path seg: " + str(path_segments)
 	return path_segments
-
 
 
 def indPathPieces(segmentsList):
@@ -79,6 +85,8 @@ def indPathPieces(segmentsList):
 			if thisSegment[1:2] == anotherSegment[-2:]:
 				newSegment = thisSegment
 
+
+#['EA','CB','AC','BD', 'DE']
 
 
 #print independantPathPieces()
@@ -93,7 +101,7 @@ def finalAssembly(independantPathPieces, charset="ABCDE"):
 	# the | operator unions two sets.
 	all_pieces = validchars | set(independantPathPieces)
 	all_pieces = list(all_pieces)
-	return pathGenerator(all_pieces)
+	return ''.join(pathGenerator(all_pieces))
 
 
 def codeBlankSpots(gene):
@@ -104,6 +112,48 @@ def codeBlankSpots(gene):
 		else:
 			newGene.append(codon)
 	return newGene
+
+
+
+def geneFormatToPathSegmentsMini(gene):
+	charset = theCharset()
+	segments = []
+	for i in range(len(gene)):
+		spot = charset[i]
+		if gene[i] != '__':
+			segment1 = str(gene[i][0]) + str(spot)
+			segment2 = str(spot) + str(gene[i][1])
+			segments.append(segment1)
+			segments.append(segment2)
+	# return unique
+	return list(set(segments))
+	return segments
+
+print geneFormatToPathSegmentsMini(['CD', 'AB', 'BE', 'EC']) #DA
+
+['ABECD', '', '__', '__']
+
+def joinPathBits(pathBits):
+	
+	index = 0
+	for index in range(len(pathBits)):
+		# figure out nex and prev point
+		foundMatch = True
+		while foundMatch == True:
+			foundMatch = False
+			next = pathBits[index][-1]
+			prev = pathBits[index][0]
+
+			for j in range(len(pathBits)):	#next index
+				if next == pathBits[j][0] and next != '_':
+					join one way
+				elif prev == pathBits[index][-1] and prev != '_':
+					join another
+
+
+
+
+
 
 
 def geneFormatToPathSegments(gene):
@@ -144,20 +194,25 @@ def greedyCrossover(pGene1,pGene2, pNumChildren):
 		# lets fill 'em.
 		# code blank spots with '__'
 		child = codeBlankSpots(child)
+		print "blank"
 		print child
 		#next we convert to segments. # for example RT in the A spot becomes RAT. and so on.
 		child = geneFormatToPathSegments(child)
+		print "to path segments:"
 		print child
 
 		#next we remove the redundant parts of the segments
 		child = independantPathPieces(child)
+		print "ind pieces"
 		print child
 
 		#next we use finalAssembly to make it a full string path!
 		child = finalAssembly(child)
+		print "final assembly"
 		print child
 		#finally we convert it back to a gene
 		child = pathToConnectionsList(child)
+		print "conversion"
 		print child
 
 		# if we want these as string we do offspring.append("".join(pGene1)) for both here.
@@ -165,7 +220,9 @@ def greedyCrossover(pGene1,pGene2, pNumChildren):
 
 	return offspring[0:pNumChildren]
 
-print greedyCrossover(['EC', 'CD', 'AB', 'BE','DA'],['EC', 'XX', 'XX', 'XX','XX'], 3)
+#print greedyCrossover(['EC', 'CD', 'AB', 'BE','DA'],['EC', 'XX', 'XX', 'XX','XX'], 3)
+#print independantPathPieces(['EAC', 'CBD', 'ACB', 'BDE', 'DEA'])
+
 
 
 
