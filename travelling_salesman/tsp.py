@@ -113,8 +113,6 @@ def codeBlankSpots(gene):
 			newGene.append(codon)
 	return newGene
 
-
-
 def geneFormatToPathSegmentsMini(gene):
 	charset = theCharset()
 	segments = []
@@ -131,29 +129,39 @@ def geneFormatToPathSegmentsMini(gene):
 
 print geneFormatToPathSegmentsMini(['CD', 'AB', 'BE', 'EC']) #DA
 
-['ABECD', '', '__', '__']
+#['ABECD', '', '__', '__']
 
 def joinPathBits(pathBits):
-	
 	index = 0
 	for index in range(len(pathBits)):
 		# figure out nex and prev point
-		foundMatch = True
-		while foundMatch == True:
-			foundMatch = False
+		
+		while matchFound:
+			matchFound = False
 			next = pathBits[index][-1]
 			prev = pathBits[index][0]
 
-			for j in range(len(pathBits)):	#next index
-				if next == pathBits[j][0] and next != '_':
-					join one way
-				elif prev == pathBits[index][-1] and prev != '_':
-					join another
+			while True
+			index2 = 1				
+			if next == pathBits[index2][0] and next != '_':
+				join one way
+				matchFound = True
+			elif prev == pathBits[index2][-1] and prev != '_':
+				join another
+				matchFound = True
 
 
 
-
-
+def findpaths(segments):
+	path_starts = {} #  path_start:path
+	path_ends = {} # path_end:path
+	starts = {} # start:end of a segment
+	#path_prefixes = []
+	for segment in segments:
+		starts[segment[0]] = segment[1]
+	for start in starts:
+		next = segment[start]
+		if next in starts: # a longer path's been found
 
 
 def geneFormatToPathSegments(gene):
