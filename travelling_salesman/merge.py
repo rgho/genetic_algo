@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 from collections import deque
 
+
 def merge(segments):
+    # TAKES UNIQUE EDGES OF A GRAPH - AB, CD, BC, GF, FX, ZY and RETURNS unique independant paths
+    # ABCD,GFX,ZY
+    
     starts_merged = {}
     ends_merged = {}
     for (segstart, segend) in segments:

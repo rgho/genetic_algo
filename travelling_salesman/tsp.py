@@ -2,13 +2,17 @@ import string
 import random
 import json
 import math
-import pdb
-import tspMating as mate
 import tspMutations as mutate
 import traveltime as travel
 from collections import deque
 
-def merge(segments):
+def theCharset():
+	# NO UNDERSCORES
+	charset = string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
+	charset = charset.replace('_','')
+	return charset
+
+def edges_to_independant_paths(segments):
     starts_merged = {}
     ends_merged = {}
     for (segstart, segend) in segments:
@@ -41,14 +45,9 @@ def merge(segments):
 
     return map(lambda x:''.join(x), starts_merged.values())
 
-def theCharset():
-	# NO UNDERSCORES
-	charset = string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation
-	charset = charset.replace('_','')
-	return charset
 
 def pathGenerator(pieces_list):
-	# GIVEN A peices, GENERATES A RANDOM PATH USING EACH CHAR ONCE
+	# GIVEN peices, GENERATES A RANDOM PATH USING EACH CHAR ONCE
 	path = []
 	while (len(pieces_list) > 0):
 		next = random.choice(pieces_list)
@@ -59,7 +58,7 @@ def pathGenerator(pieces_list):
 	#path = ''.join(path)
 	return path
 
-def pathToConnectionsList(path, charset = 'ABCDEFG'):
+def pathToConnectionsList(path, charset):
 	# TAKES A PATH and converts it to the edge format of a gene. still needs to be finished.'str' object has no attribute 'append'
 	path = path + path[0] +path[1]
 
@@ -74,57 +73,7 @@ def pathToConnectionsList(path, charset = 'ABCDEFG'):
 		conList.append(details[charset[i]])
 	return conList
 
-#print pathToConnectionsList(['A','C','B','D','E'])
-
-
-
-def independantPathPieces(path_segments = []):
-	# TAKES EDGE SEGMENTS FOR EACH GENE OR SOME SUBSET OF GENES AND MAKES A STRING PATH OF MIN LENGTH
-	#path_segments = ['LOP','BAC','FYZ','CDF','REX', 'XWL']
-	#path_segments = ['EAC','CBD']
-	path_segments = ['EA','CB','AC','BD', 'DE']
-	# CAREFUL: THERE IS SOME INSANITY LOGIC GOING ON HERE!
-	#print "path seg: " + str(path_segments)
-	index = 0
-	while index < len(path_segments):
-		next = path_segments[index][-1]
-		
-	
-		for j in range(len(path_segments)):
-			prev = path_segments[j][0]
-			print "next: " + next
-			print "prev: " + prev
-			print "index:" + str(index)
-			print path_segments
-			if (next == prev) and (next != '_') :
-				path_segments[index] = path_segments[index] + path_segments[j][1:]
-				path_segments[j] = '_'
-				next = path_segments[index][-1]
-				#index -=1
-
-			print path_segments
-		index +=1
-	path_segments = [x for x in path_segments if x != '_']
-	#print "path seg: " + str(path_segments)
-	return path_segments
-
-
-def indPathPieces(segmentsList):
-
-	for thisSegment in segmentsList:
-
-		for anotherSegment in segmentsList:
-			if thisSegment[1:2] == anotherSegment[-2:]:
-				newSegment = thisSegment
-
-
-#['EA','CB','AC','BD', 'DE']
-
-
-#print independantPathPieces()
-#print pathToConnectionsList(pathGenerator())
-
-def finalAssembly(independantPathPieces, charset="ABCDE"):
+def completePathFromPieces(independantPathPieces, charset):
 	#TAKES INDEPENDANT PATHS
 	# generate a charset that is the difference of all avail chars and those chars already used in the segments
 	alreadyUsedChars = ''.join(independantPathPieces)
@@ -136,7 +85,7 @@ def finalAssembly(independantPathPieces, charset="ABCDE"):
 	return ''.join(pathGenerator(all_pieces))
 
 
-def codeBlankSpots(gene):
+def underscore_encode_blank_codons(gene):
 	newGene = []
 	for codon in gene:
 		if codon == '':
@@ -145,7 +94,7 @@ def codeBlankSpots(gene):
 			newGene.append(codon)
 	return newGene
 
-def geneFormatToPathSegmentsMini(gene):
+def geneFormatToEdges(gene):
 	charset = theCharset()
 	segments = []
 	for i in range(len(gene)):
@@ -159,56 +108,7 @@ def geneFormatToPathSegmentsMini(gene):
 	return list(set(segments))
 	return segments
 
-#print geneFormatToPathSegmentsMini(['CD', 'AB', 'BE', 'EC']) #DA
-
-#['ABECD', '', '__', '__']
-
-# def joinPathBits(pathBits):
-# 	index = 0
-# 	for index in range(len(pathBits)):
-# 		# figure out nex and prev point
-		
-# 		while matchFound:
-# 			matchFound = False
-# 			next = pathBits[index][-1]
-# 			prev = pathBits[index][0]
-
-# 			while True
-# 			index2 = 1				
-# 			if next == pathBits[index2][0] and next != '_':
-# 				join one way
-# 				matchFound = True
-# 			elif prev == pathBits[index2][-1] and prev != '_':
-# 				join another
-# 				matchFound = True
-
-
-
-# def findpaths(segments):
-# 	path_starts = {} #  path_start:path
-# 	path_ends = {} # path_end:path
-# 	starts = {} # start:end of a segment
-# 	#path_prefixes = []
-# 	for segment in segments:
-# 		starts[segment[0]] = segment[1]
-# 	for start in starts:
-# 		next = segment[start]
-# 		if next in starts: # a longer path's been found
-
-
-def geneFormatToPathSegments(gene):
-	charset = theCharset()
-	segments = []
-	for i in range(len(gene)):
-		spot = charset[i]
-		if gene[i] != '__':
-			segment = str(gene[i][0]) + str(spot) + str(gene[i][1])
-			segments.append(segment)
-	return segments
-
-
-
-def greedyCrossover(pGene1,pGene2, pNumChildren):	
+def tspCrossover(pGene1,pGene2, pNumChildren):	
 	offspring = []
 	
 	# WE BEGIN GENERATING OFFSRPING TILL WE HAVE ENOUGH!
@@ -233,134 +133,22 @@ def greedyCrossover(pGene1,pGene2, pNumChildren):
 		# now we have a valid gene with blank spots!
 		# lets fill 'em.
 		# code blank spots with '__'
-		child = codeBlankSpots(child)
-		print "blank"
-		print child
+		child = underscore_encode_blank_codons(child)
 		#next we convert to segments. # for example RT in the A spot becomes RAT. and so on.
-		child = geneFormatToPathSegmentsMini(child)
-		print "to path segments:"
-		print child
-
+		child = geneFormatToEdges(child)
 		#next we remove the redundant parts of the segments
-		child = merge(child)
-		print "ind pieces"
-		print child
-
-		#next we use finalAssembly to make it a full string path!
-		child = finalAssembly(child)
-		print "final assembly"
-		print child
+		child = edges_to_independant_paths(child)
+		#next we use completePathFromPieces to make it a full string path!
+		charset = theCharset()[0:geneLength]
+		child = completePathFromPieces(child,charset)
 		#finally we convert it back to a gene
-		child = pathToConnectionsList(child)
-		print "conversion"
-		print child
+		child = pathToConnectionsList(child,charset)
 
 		# if we want these as string we do offspring.append("".join(pGene1)) for both here.
 		offspring.append(child)
 
 	return offspring[0:pNumChildren]
 
-print greedyCrossover(['EC', 'CD', 'AB', 'BE','DA'],['EC', 'XX', 'XX', 'XX','XX'], 3)
-#print independantPathPieces(['EAC', 'CBD', 'ACB', 'BDE', 'DEA'])
-
-
-
-
-def writeToGene(toOrFromPos,whichCodon,whichGene,whatToWrite):
-	if toOrFromPos == 'to': pos = 1
-	if toOrFromPos == 'from': pos = 0
-	#print "which codon: " + str(whichCodon)
-	#print "postion: " + str(pos) 
-	# check if whichgene[whichcodon is empty]
-	
-	if whichCodon == 88: return whichGene # this may be the worlds ugliest hack, depending on
-	# _ not being a reserved char aka being in the charset but also depending on the num of cities
-	# in the prob to be less that 88
-	
-	spot = whichGene[whichCodon]
-	val = whichGene[whichCodon][pos]
-	#print "current value: " +  str(val)
-
-	if val == whatToWrite: return whichGene
-	if val == "_":
-		#spot = ['','']
-		#print "spot:"
-		#print spot
-		spot = list(spot)
-		spot[pos] = whatToWrite
-		#print "spot:"
-		#print spot
-
-		#check if val is empty
-		newGene =  whichGene[0:whichCodon] + ["".join(spot)] + whichGene[whichCodon+1:len(whichGene)]
-		return newGene
-	
-	return "ERROR, NON CONSISTANT VALUE ALREADY IN POS."
-
-#print writeToGene('to',2,['__','__','__','__','__','__','xx','xx'],'o')
-#writeToGene('to',3,['','','','','','','',''],"x")
-
-
-
-def tspGeneTemplater(gene,locCodes):
-	# assumes that it gets a valid gene which was constructed by common elements in two parents and an additional random element from on parent.
-	gene = codeBlankSpots(gene)
-	genecopy = gene
-	charset = theCharset()
-
-	for codonLoc in range(len(gene)):
-		codon = gene[codonLoc]
-		if codon !='__':
-			whereFrom = codon[0]
-			whereTo = codon[1]
-			current = locCodes[codonLoc]
-
-			whereFromIndex = charset.index(whereFrom)  
-			whereToIndex = charset.index(whereTo)
-			current = locCodes[codonLoc]
-
-			genecopy = writeToGene('from',whereToIndex,genecopy,current)
-			genecopy = writeToGene('to',whereFromIndex,genecopy,current)
-
-	#at this point we should have a template!!!!
-	# that we can fill in.
-	return genecopy
-
-#print tspGeneTemplater(['BD', 'CA', '_B', 'A_'], theCharset())
-
-def templateToGene(gene):
-	# GETS A FULLY TEMPLATED GENE
-	# MUST NOW FILL UP THE CHARS TO MAKE A VALID GENE! WHAT A DAUNTING TASK!!
-
-	# FIRST WE GET THE CHARSETS WE ARE WORKING WITH
-	# ONE FOR TO AND ONE FOR FROM POSITIONS
-	#init
-	chars = theCharset()[0:len(gene)]
-	toChars = chars
-	fromChars = chars
-
-	# remove already existing chars
-	for codon in gene:
-		if codon[0] != "_": fromChars = fromChars.replace(codon[0],'',1)
-		if codon[1] != "_":
-			toChars = toChars.replace(codon[1],'',1)
-		else:
-			anEmptyToSpot = gene.index(codon)
-			currentLoc = chars[anEmptyToSpot]
-
-	# now we have a list of to and from chars that need to be placed in a valid configuration.
-	# choose a blank spot to start from (anEmptyTospot)
-	gene = writeToGene('from',anEmptyToSpot,gene,currentLoc)
-	cont = True
-	while cont:	
-		toLoc = random.choice(toChars)
-		toChars = toChars.replace(toLoc,'',1)
-		gene = writeToGene('from',anEmptyToSpot,gene,currentLoc)
-
-		currentLoc = toLoc
-
-	writeToGene('to',2,['__','__','x_','__','__','__','xx','xx'],'o')
-	return connectionList
 
 
 def pathMaker(numLocations):
@@ -369,108 +157,6 @@ def pathMaker(numLocations):
 	random.shuffle(locationsCharset)
 	locationsCharset = "".join(locationsCharset)
 	print locationsCharset
-
-
-def makeTSPGeneX(numLocations):
-	# this time we are going to do things smarter.
-	if numLocations < 3 or numLocations > 94:
-		print "MAX LOCATIONS IS 94, MIN LOCATIONS IS 3."
-		quit()
-
-	# intialize
-	locationsCharset =  theCharset()[0:numLocations]
-	path =  pathMaker(numLocations)
-	#fromLocations = locationsCharset
-
-	locIndex = dict()
-	locValue = dict()
-	
-	# BUILD THE INDEX AND VALUE DICTS
-	for i in range(numLocations):
-		locIndex[locationsCharset[i]] = i
-		locValue[i] = locationsCharset[i]
-		connectionList =  ["" for x in range(numLocations)]
-
-	return connectionList
-
-
-def completeTSPGene(pGene):
-	# this time we are going to do things smarter.
-	numLocations = len(pGene) 
-
-	# intialize
-	locationsCharset =  theCharset()[0:numLocations]
-	toLocations = locationsCharset
-	fromLocations = locationsCharset
-
-	locIndex = dict()
-	locValue = dict()
-	
-	# BUILD THE INDEX AND VALUE DICTS
-	for i in range(numLocations):
-		locIndex[locationsCharset[i]] = i
-		locValue[i] = locationsCharset[i]
-		#connectionList =  ["__" for x in range(numLocations)]
-
-	# remove existing options from charsrets.
-	for codon in pGene:
-		if codon[0] != "_": fromLocations = fromLocations.replace(codon[0],'',1)
-		if codon[1] != "_":
-			toLocations = toLocations.replace(codon[1],'',1)
-		else:
-			# grab details about a codon where the to location is empty. 
-			anEmptyToSpot = pGene.index(codon)
-			currentLoc = locationsCharset[anEmptyToSpot]
-
-	# we define an empty fromLoc, we have a currentLoc, and we get a toLoc!
-	fromLoc = "_"
-	#toLoc = random.choice(toLocations)
-	#toLocations = toLocations.replace(currentLoc, "")
-
-	
-	for i in range(numLocations+1):
-		print len(toLocations)
-		print len(fromLocations)
-		print "wherefrom: "  + fromLoc
-		print "currentloc: " + currentLoc
-		print "to locs options: " + str(toLocations)
-		print "from locs: " + str(fromLocations)
-		print pGene
-		print 
-		#place the from loc in the from position of the current loc
-		if fromLoc != "_": 
-			pGene[locIndex[currentLoc]] = str(fromLoc) + str(pGene[locIndex[currentLoc]][1])
-			fromLocations = fromLocations.replace(fromLoc,'',1)
-
-
-		if len(toLocations) == 0:
-			pGene[locIndex[currentLoc]] = str(fromLoc[0] ) + str(pGene[locIndex[currentLoc]][1])
-			return pGene
-
-		toLoc = pGene[locIndex[currentLoc]][1]
-		if toLoc == "_":
-			# get a to loc only if needed
-			#if len(toLocations) == 2 and len(fromLocations) == 1 and (fromLocations == toLoc)
-
-			toLoc = currentLoc
-			while (toLoc == currentLoc) or (toLoc == fromLoc) :
-				if len(toLocations) == 0:
-					toLoc = locValue[anEmptyToSpot]
-				else:			
-					toLoc = random.choice(toLocations)
-			toLocations = toLocations.replace(toLoc, "")
-
-		#place it in the to position of the current loc
-		pGene[locIndex[currentLoc]] = str(pGene[locIndex[currentLoc]][0]) + str(toLoc)
-
-		#prepare to move to the new loc!
-		fromLoc = currentLoc
-		currentLoc = toLoc
-
-	pGene[locIndex[currentLoc]] = str(fromLoc) + str(pGene[locIndex[currentLoc]][0])
-	return pGene
-
-#print completeTSPGene(['__','CD','_B','B_','__','__','AC','FI','HA'])
 
 def makeTSPGene(numLocations):
 	# this time we are going to do things smarter.
@@ -571,6 +257,54 @@ def decodeGene(pGene, pCharset, plocCodeDict):
 	return list(set(decoded))
 
 
+###################################################
+## CACHE
+
+def fileContents(filename):
+	txt = open(filename)
+	text = txt.read()
+	txt.close()
+	return text
+
+def getCache(pLoc1,pLoc2):
+	return fileContents(filenameGen(pLoc1,pLoc2))
+
+def locationsNames():
+	locs = [line.strip() for line in open('locs.txt')]
+	return locs
+
+def isInCache(pLoc1,pLoc2):
+	filename = filenameGen(pLoc1,pLoc2)
+	return isFile(filename)
+
+def isFile(filename):
+	#print "looking for: " + filename
+	try:
+		with open(filename):
+			return True
+	except IOError:
+	   	return False
+
+def writeToFile(filename, data):
+	target = open(filename, 'w')
+	target.write(str(data))
+	target.close
+	return True
+
+def addToCache(pLoc1, pLoc2, pData):
+	filename = filenameGen(pLoc1,pLoc2)
+	writeToFile(filename,pData)
+
+def filenameGen(pLoc1,pLoc2):
+	filename = "cache/" + pLoc1 + "_" + pLoc2 + ".txt"
+	return filename
+
+def printList(list):
+	for i in range(len(list)):
+		print list[i]
+
+###################################################################
+## FITNESS
 def getTimeAndDistGoogleAPI(pLoc1,pLoc2):
 	details = dict()
 	details['status'] = 'OK'
@@ -589,12 +323,12 @@ def getPathDetails(pLoc1,pLoc2):
 	return pathDetails
 
 
-def theTSPFitness(pGene,locCodes,locCodesToValues):
+def theTSPFitness(pGene,locCodes,locCodesToNames):
 	if not isValidTSPGene(pGene,locCodes): return 0
 	# least fitness = earth circumference in meters * num cities
 	longestDist = 40075160 * len(pGene)
 	score = 0
-	locPairList = decodeGene(pGene,locCodes,locCodesToValues)
+	locPairList = decodeGene(pGene,locCodes,locCodesToNames)
 	for locPair in locPairList:
 			pathDetails = getPathDetails(locPair[0],locPair[1])
 			if pathDetails["status"] != 'OK': return 0
@@ -604,83 +338,39 @@ def theTSPFitness(pGene,locCodes,locCodesToValues):
 	return fitness
 
 
-def fileContents(filename):
-	txt = open(filename)
-	text = txt.read()
-	txt.close()
-	return text
+'''
+LOCATION CODE/S : the charecter set that represents each/all location/s.
 
 
-def getCache(pLoc1,pLoc2):
-	return fileContents(filenameGen(pLoc1,pLoc2))
-
-
-def locationsList():
-	locs = [line.strip() for line in open('locs.txt')]
-	return locs
-
-
-def isInCache(pLoc1,pLoc2):
-	filename = filenameGen(pLoc1,pLoc2)
-	return isFile(filename)
-
-
-def isFile(filename):
-	try:
-		with open(filename):
-			return True
-	except IOError:
-	   	return False
-
-
-def writeToFile(filename, data):
-	target = open(filename, 'w')
-	target.write(str(data))
-	target.close
-	return True
-
-
-def addToCache(pLoc1, pLoc2, pData):
-	filename = filenameGen(pLoc1,pLoc2)
-	writeToFile(filename,pData)
-
-
-def filenameGen(pLoc1,pLoc2):
-	filename = "cache/" + pLoc1 + "_" + pLoc2 + ".txt"
-	return filename
-
-
-def printList(list):
-	for i in range(len(list)):
-		print list[i]
-
+'''
 
 def mainLoop(currentGeneration, locInfo, generationMeta):
 	# CONSTANTS
 	mutationProb = 0.3
-	matingType = 'onePointCrossover'
-	childrenPerParentPair = 100
-	initialPop = 1000
+	matingType = 'tspCrossover'
+	childrenPerParentPair = 2
+	initialPop = 100
 
-
+	# CHECK IF THIS IS FIRST GENERATION
 	if currentGeneration == None:
 		generationMeta = dict()
 		generationMeta['number'] = 0 
 
 		# SETUP
-		locationList = locationsList()
-		numLocs = len(locationList)
+		locNames = locationsNames()
+		numLocs = len(locNames)
 		locCodes = theCharset()[0:numLocs]
 		
 		# construct a location dict once!
-		locCodesToValues = dict()
+		locCodesToNames = dict()
 		for i in range(numLocs):
-			locCodesToValues[locCodes[i]] = locationList[i]
-		population = makeTSPGeneration(initialPop,numLocs)
-
+			locCodesToNames[locCodes[i]] = locNames[i]
 		locInfo = dict()
 		locInfo['locCodes'] = locCodes
-		locInfo['locCodesToValues'] = locCodesToValues
+		locInfo['locCodesToNames'] = locCodesToNames
+
+		# create an initial population
+		population = makeTSPGeneration(initialPop,numLocs)
 
 	else:
 		population = currentGeneration
@@ -694,30 +384,34 @@ def mainLoop(currentGeneration, locInfo, generationMeta):
 
 	# CALCULATE FITNESS FOR EACH
 	generation = dict()
+
 	for gene in population:
+		# SINCE WE CANT INDEX THE GENES BY THEIR LIST GENES WE FLATTEN THEM AND USE THAT AS AN INDEX.
 		geneHash = "".join(gene)
-		generation[geneHash,'fitness'] = theTSPFitness(gene,locInfo['locCodes'],locInfo['locCodesToValues'])
+		# CALCULATE THE FITNESS OF EACH GENE
+		generation[geneHash,'fitness'] = theTSPFitness(gene,locInfo['locCodes'],locInfo['locCodesToNames'])
+		
 		if generation[geneHash,'fitness'] == 0:
 			generationMeta['numFatalGenes'] +=1
 		else:
+			# STORE ACTUAL GENE!
 			generation[geneHash,'gene'] = gene
 			generationMeta['totalFitness'] += generation[geneHash,'fitness']
-			#print str(geneHash) + " " + str(generation[geneHash,'fitness'])
 
+	# CALCULATE AVG FITNESS OF VALID GENES
+	# NOTE: IF WE CAN CONFIRM THAT INVALID GENES ARE NEVER CREATED WE CAN GET RID OF ALL THE CHECKS ON THEM
 	if (generationMeta['initialPop'] - generationMeta['numFatalGenes']) != 0:
 		generationMeta['avgFitness'] = generationMeta['totalFitness'] / (generationMeta['initialPop'] - generationMeta['numFatalGenes'])
 	else:
 		generationMeta['avgFitness'] = 0
 
-	
 	#NOW WE HAVE SOME META INFO, AND A POPULATION WITH FITNESS CALCULATED.
 	# NEXT WE REACH SELECTION PHASE
-
 	# NOW WE GRAB A LIST OF THE GENE HASHES AND CALL THEM GENES! SNEAKY.
 	genes = list(set([i[0] for i in list(generation.keys())])) # GRAB JUST THE KEYS. INTUITION SAYS KEYS WILL BE TUPLES, WILL HAVE TO FILE GET FIRST ITEM.
 	generationMeta['numUnfitToReproduce'] = 0
 	for gene in genes:
-		# ONE LINER FOR REMOVING BELOW AVG PERFORMERS.
+		# HERE IS WHERE WE ARE DOING SELECTION CHOOSING ANYONE BELOW 50% FITNESS.
 		# NOTE POTENTIAL BUG IF DUPLICATE KEYS EXIST?
 		if generation[gene,'fitness'] <= generationMeta['avgFitness']: 
 			del generation[gene,'fitness']
@@ -727,17 +421,19 @@ def mainLoop(currentGeneration, locInfo, generationMeta):
 	# A ONE LINE TO MAKE COUPLE OUT OF FIRST AND LAST AND INWARDS OF EACH LIST.
 	genes = list(set([i[0] for i in list(generation.keys())])) # make the current genehashes to a list again
 	couples = [(generation[genes[i],'gene'],generation[genes[-1-i],'gene']) for i in range(int(math.floor(len(genes)/2)))]
+	
 	# INIT KIDS
 	kids = []
 	for parents in couples:
 		# a one liner to add all the kids of parent to the end of the kids list.
-		kids.extend(mate.theOffspringOf(parents[0],parents[1],childrenPerParentPair,matingType))
+		kids.extend(tspCrossover(parents[0],parents[1],childrenPerParentPair))
 
-	# for kid in kids:
-	# 	# one liner to mutate kids
-	# 	kids = mutate.mutate(kids, mutationProb)
+	# SHOW SOME OUTPUT.
+	print "==Parents=="
+	printList(genes[0:10])
+	print
 	print "==Kids=="
-	printList(kids[0:4])
+	printList(kids[0:10])
 
 	print "=="
 	print "gen num:" + str(generationMeta['number'])
@@ -754,5 +450,4 @@ def mainLoop(currentGeneration, locInfo, generationMeta):
 	else:
 		mainLoop(kids,locInfo,generationMeta)
 
-
-#mainLoop(None,None,None)
+mainLoop(None,None,None)
