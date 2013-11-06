@@ -349,7 +349,7 @@ def mainLoop(currentGeneration, locInfo, generationMeta):
 	mutationProb = 0.3
 	matingType = 'tspCrossover'
 	childrenPerParentPair = 2
-	initialPop = 100
+	initialPop = 2000
 
 	# CHECK IF THIS IS FIRST GENERATION
 	if currentGeneration == None:
